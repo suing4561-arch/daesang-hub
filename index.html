@@ -100,7 +100,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .parcel-tracking{display:flex;align-items:center;gap:6px;}
 .tracking-input{border:1.5px solid var(--line);border-radius:7px;padding:5px 8px;font-family:'DM Mono',monospace;font-size:12px;width:130px;outline:none;color:#1a2744;}
 .tracking-input:focus{border-color:var(--green);}
-.tracking-done{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);font-weight:700;}
+.tracking-done{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);font-weight:700;transition:.15s;}.tracking-done:hover{color:#0f766e;text-decoration:underline!important;}
 
 /* 기사 뷰 (링크로 열릴 때) */
 .driver-view{display:none;max-width:600px;margin:0 auto;padding:20px 16px;}
@@ -319,11 +319,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
           </div>
         </div>
         <div class="fg-group"><label class="flabel">메모</label><input class="fginput" id="rs_memo" placeholder="특이사항"></div>
+        <div class="fg-group" style="grid-column:span 2;"><label class="flabel">송장번호 (수정 시만 적용, 새로 등록 시 제외)</label><input class="fginput" id="rs_tracking" placeholder="송장번호 입력 (없으면 비워두세요)" style="font-family:monospace;"></div>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
         <button class="btn btn-outline" onclick="closeReshipModal()">취소</button>
-        <button class="btn btn-gold" id="reshipSaveBtn" onclick="saveEditParcel()">💾 수정 저장</button>
-        <button class="btn btn-navy" id="reshipNewBtn" onclick="saveReship()" style="display:none;">📦 새로 등록</button>
+        <button class="btn btn-gold" onclick="saveEditParcel()">💾 저장 (수정)</button>
+        <button class="btn btn-navy" onclick="saveReship()">📦 새로 등록</button>
       </div>
     </div>
   </div>
@@ -631,13 +632,13 @@ function renderParcels(){
       <div class="parcel-sub">📍 ${esc(p.addr||'')} ${p.tel?'· 📞 '+esc(p.tel):''} ${p.model?'· 📦 '+esc(p.model):''} ${p.driverName?'· 🚚 '+esc(p.driverName):''}</div>
     </div>
     ${p.tracking
-      ?`<div class="tracking-done">✅ ${esc(p.tracking)}</div>`
+      ?`<a href="https://www.ilogen.com/web/personal/trace/${esc(p.tracking)}" target="_blank" class="tracking-done" style="text-decoration:none;cursor:pointer;" title="로젠택배 배송조회">✅ ${esc(p.tracking)} 🔍</a>`
       :`<div class="parcel-tracking">
           <input class="tracking-input" id="trk-${p.id}" placeholder="송장번호" value="">
           <button class="btn btn-green btn-sm" onclick="saveParcelTracking('${p.id}')">저장</button>
         </div>`
     }
-    <button class="btn btn-outline btn-sm" onclick="reshipParcel('${p.id}')">↩️ 다시보내기</button>
+    <button class="btn btn-gold btn-sm" onclick="openEditParcel('${p.id}')" style="white-space:nowrap;">✏️ 수정/다시보내기</button>
     <button class="btn btn-red btn-sm" onclick="deleteParcel('${p.id}')">🗑</button>
   </div>`).join('');
   updateParcelTabLabel();
@@ -656,15 +657,12 @@ function openEditParcel(id){
   document.getElementById('rs_addr').value=p.addr||'';
   document.getElementById('rs_model').value=p.model||'';
   document.getElementById('rs_memo').value=p.memo||'';
+  document.getElementById('rs_tracking').value=p.tracking||'';
   // 결제방식
   document.querySelectorAll('input[name="rsPayType"]').forEach(r=>{r.checked=(r.value===(p.payType||'선불'));});
   // 기사 셀렉트
   const sel=document.getElementById('rs_driver');
   sel.innerHTML='<option value="">기사 선택</option>'+driverItems.map(d=>`<option value="${d.id}" ${d.id===p.driverId?'selected':''}>${esc(d.name)}</option>`).join('');
-  // 모드 설정: 수정
-  document.getElementById('reshipModalTitle').textContent='✏️ 택배 수정';
-  document.getElementById('reshipSaveBtn').style.display='';
-  document.getElementById('reshipNewBtn').style.display='none';
   // 모달 오픈
   document.getElementById('reshipModal').style.display='flex';
 }
@@ -678,11 +676,13 @@ async function saveEditParcel(){
   const payType=document.querySelector('input[name="rsPayType"]:checked')?.value||'선불';
   const driverId=document.getElementById('rs_driver').value;
   const driverName=driverItems.find(d=>d.id===driverId)?.name||'';
+  const tracking=document.getElementById('rs_tracking')?.value.trim()||'';
   const updates={
     name, addr, payType, driverId, driverName,
     tel:document.getElementById('rs_tel').value.trim(),
     model:document.getElementById('rs_model').value.trim(),
     memo:document.getElementById('rs_memo').value.trim(),
+    tracking: tracking,
   };
   try{
     await db.ref('parcels/'+reshipTargetId).update(updates);
@@ -701,15 +701,12 @@ function reshipParcel(id){
   document.getElementById('rs_addr').value=p.addr||'';
   document.getElementById('rs_model').value=p.model||'';
   document.getElementById('rs_memo').value=p.memo||'';
+  document.getElementById('rs_tracking').value=''; // 다시보내기는 송장번호 제외
   // 결제방식
   document.querySelectorAll('input[name="rsPayType"]').forEach(r=>{r.checked=(r.value===(p.payType||'선불'));});
   // 기사 셀렉트
   const sel=document.getElementById('rs_driver');
   sel.innerHTML='<option value="">기사 선택</option>'+driverItems.map(d=>`<option value="${d.id}" ${d.id===p.driverId?'selected':''}>${esc(d.name)}</option>`).join('');
-  // 모드 설정: 다시보내기
-  document.getElementById('reshipModalTitle').textContent='↩️ 다시보내기 (새로 등록)';
-  document.getElementById('reshipSaveBtn').style.display='none';
-  document.getElementById('reshipNewBtn').style.display='';
   // 모달 오픈
   const modal=document.getElementById('reshipModal');
   modal.style.display='flex';
