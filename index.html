@@ -6,19 +6,25 @@
 <title>대상정보통신 통합 관리</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#1a2744;--navy2:#243358;--gold:#c8922a;--bg:#f7f5f0;--panel:#fff;--line:#e5ddd0;--muted:#6b7280;--red:#dc2626;--green:#16a34a;--shadow:0 4px 24px rgba(26,39,68,.10);}
+:root{--navy:#1a2744;--navy2:#243358;--gold:#c8922a;--bg:#f7f5f0;--panel:#fff;--line:#e5ddd0;--muted:#6b7280;--red:#dc2626;--green:#16a34a;--blue:#2563eb;--shadow:0 4px 24px rgba(26,39,68,.10);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh;}
 .header{background:var(--navy);border-bottom:3px solid var(--gold);padding:0 24px;height:54px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;}
 .logo{font-size:19px;font-weight:900;color:#fff;}.logo span{color:var(--gold);}
 .logo-sub{font-size:11px;color:rgba(255,255,255,.4);}
-.top-tab-bar{background:var(--navy2);display:flex;padding:0 24px;position:sticky;top:54px;z-index:99;}
-.top-tab-btn{padding:0 20px;height:42px;font-size:13px;font-weight:700;color:rgba(255,255,255,.5);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:.15s;}
+.top-tab-bar{background:var(--navy2);display:flex;padding:0 16px;position:sticky;top:54px;z-index:99;overflow-x:auto;}
+.top-tab-bar::-webkit-scrollbar{display:none;}
+.top-tab-btn{padding:0 16px;height:42px;font-size:13px;font-weight:700;color:rgba(255,255,255,.5);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:.15s;flex-shrink:0;}
 .top-tab-btn:hover{color:rgba(255,255,255,.85);}
 .top-tab-btn.active{color:#fff;border-bottom-color:var(--gold);}
 .top-panel{display:none;}.top-panel.active{display:block;}
-.container{max-width:920px;margin:0 auto;padding:28px 16px 60px;}
+
+/* 공통 레이아웃 */
+.container{max-width:920px;margin:0 auto;padding:26px 16px 60px;}
+.inner{max-width:860px;margin:0 auto;padding:22px 16px 60px;}
 .sec{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding-left:2px;}
+
+/* 홈 카드 */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:24px;}
 .app-card{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:15px 17px;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:all .18s;}
 .app-card:hover{border-color:var(--gold);box-shadow:var(--shadow);transform:translateY(-2px);}
@@ -29,16 +35,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .arr{color:var(--gold);font-size:16px;flex-shrink:0;}
 .badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;margin-left:4px;vertical-align:middle;}
 .ba{background:rgba(220,38,38,.1);color:#dc2626;}.bs{background:rgba(22,163,74,.1);color:#16a34a;}
+
+/* 공통 컴포넌트 */
 .btn{padding:8px 15px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px;}
-.btn-navy{background:var(--navy);color:#fff;}.btn-gold{background:var(--gold);color:#fff;}.btn-red{background:var(--red);color:#fff;}
+.btn-navy{background:var(--navy);color:#fff;}.btn-gold{background:var(--gold);color:#fff;}
+.btn-red{background:var(--red);color:#fff;}.btn-green{background:var(--green);color:#fff;}
+.btn-blue{background:var(--blue);color:#fff;}
 .btn-outline{background:transparent;border:1.5px solid var(--line);color:var(--muted);}.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
 .btn-sm{padding:5px 10px;font-size:12px;}
-.inner{max-width:820px;margin:0 auto;padding:24px 16px 60px;}
 .search-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
 .search-input{flex:1;min-width:160px;border:1.5px solid var(--line);border-radius:9px;padding:9px 13px;font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;background:var(--panel);color:#1a2744;}
 .search-input:focus{border-color:var(--gold);}
 .form-box{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:16px;margin-bottom:14px;}
-.form-box-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:11px;}
+.form-box-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .finput{width:100%;border:1.5px solid var(--line);border-radius:7px;padding:8px 10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:#1a2744;background:var(--bg);outline:none;margin-bottom:7px;}
 .finput:focus{border-color:var(--gold);background:#fff;}
 .ftextarea{width:100%;border:1.5px solid var(--line);border-radius:7px;padding:8px 10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:#1a2744;background:var(--bg);outline:none;resize:vertical;min-height:110px;margin-bottom:7px;}
@@ -48,6 +57,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .flabel{font-size:11px;font-weight:700;color:var(--muted);}
 .fginput{border:1.5px solid var(--line);border-radius:7px;padding:7px 9px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:#1a2744;background:var(--bg);outline:none;}
 .fginput:focus{border-color:var(--gold);background:#fff;}
+.tbl-wrap{background:var(--panel);border-radius:11px;box-shadow:var(--shadow);overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:500px;}
+.tbl thead tr{background:var(--navy);}
+.tbl th{padding:9px 11px;text-align:left;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;}
+.tbl tbody tr{border-bottom:1px solid var(--line);}
+.tbl tbody tr:hover{background:#fffbf4;}
+.tbl tbody tr:last-child{border-bottom:none;}
+.tbl td{padding:9px 11px;vertical-align:middle;}
 .kb-list{display:flex;flex-direction:column;gap:9px;}
 .kb-item{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:14px 15px;}
 .kb-item:hover{border-color:var(--gold);}
@@ -57,31 +74,68 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .kb-body{font-size:13px;color:#374151;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
 .hl{background:#fff3cd;border-radius:3px;padding:0 2px;}
 .empty{text-align:center;padding:36px;color:var(--muted);}
-.tbl-wrap{background:var(--panel);border-radius:11px;box-shadow:var(--shadow);overflow-x:auto;}
-.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:500px;}
-.tbl thead tr{background:var(--navy);}
-.tbl th{padding:9px 11px;text-align:left;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;}
-.tbl tbody tr{border-bottom:1px solid var(--line);}
-.tbl tbody tr:hover{background:#fffbf4;}
-.tbl tbody tr:last-child{border-bottom:none;}
-.tbl td{padding:9px 11px;vertical-align:middle;}
+
+/* ── 택배 탭 전용 ── */
+.driver-box{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-bottom:14px;}
+.driver-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;}
+.driver-head-title{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;}
+.driver-body{margin-top:12px;}
+.driver-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.driver-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--line);}
+.driver-item.editing{border-color:var(--gold);background:#fffbf4;}
+.driver-name{font-weight:700;font-size:14px;flex:1;}
+.driver-bank{font-size:12px;color:var(--muted);}
+
+/* 택배 목록 */
+.parcel-list{display:flex;flex-direction:column;gap:8px;}
+.parcel-item{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;display:flex;align-items:center;gap:10px;}
+.parcel-item.tracked{border-color:var(--green);background:#f0fff4;}
+.parcel-chk{width:16px;height:16px;accent-color:var(--navy);cursor:pointer;flex-shrink:0;}
+.parcel-info{flex:1;min-width:0;}
+.parcel-main{font-size:14px;font-weight:700;color:var(--navy);}
+.parcel-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.parcel-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.badge-prepaid{background:rgba(37,99,235,.1);color:var(--blue);}
+.badge-postpaid{background:rgba(200,146,42,.1);color:var(--gold);}
+.parcel-tracking{display:flex;align-items:center;gap:6px;}
+.tracking-input{border:1.5px solid var(--line);border-radius:7px;padding:5px 8px;font-family:'DM Mono',monospace;font-size:12px;width:130px;outline:none;color:#1a2744;}
+.tracking-input:focus{border-color:var(--green);}
+.tracking-done{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);font-weight:700;}
+
+/* 기사 뷰 (링크로 열릴 때) */
+.driver-view{display:none;max-width:600px;margin:0 auto;padding:20px 16px;}
+.driver-view.show{display:block;}
+.dv-header{background:var(--navy);color:#fff;border-radius:12px;padding:16px 18px;margin-bottom:16px;text-align:center;}
+.dv-title{font-size:18px;font-weight:900;margin-bottom:4px;}
+.dv-sub{font-size:12px;color:rgba(255,255,255,.6);}
+.dv-item{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:14px 15px;margin-bottom:10px;}
+.dv-item.done{border-color:var(--green);background:#f0fff4;}
+.dv-name{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.dv-addr{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.dv-track-row{display:flex;gap:8px;align-items:center;}
+.dv-track-input{flex:1;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font-family:'DM Mono',monospace;font-size:14px;outline:none;color:#1a2744;}
+.dv-track-input:focus{border-color:var(--green);}
+
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:.3s;z-index:500;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .footer{text-align:center;font-size:12px;color:var(--muted);padding:14px;}
 </style>
 </head>
 <body>
+
 <header class="header">
   <div class="logo">대상<span>정보통신</span></div>
   <div class="logo-sub">통합 관리 시스템</div>
 </header>
-<div class="top-tab-bar">
+
+<div class="top-tab-bar" id="mainTabBar">
   <button class="top-tab-btn active" onclick="switchTop('launcher',this)">🏠 홈</button>
   <button class="top-tab-btn" onclick="switchTop('knowledge',this)">💡 문제해결</button>
   <button class="top-tab-btn" onclick="switchTop('cms',this)">💳 CMS 등록</button>
+  <button class="top-tab-btn" id="parcelTabBtn" onclick="switchTop('parcel',this)">📦 택배등록</button>
 </div>
 
-<!-- 홈 -->
+<!-- ══ 홈 ══ -->
 <div id="top-launcher" class="top-panel active">
 <div class="container">
   <div class="sec">📋 계약 · AS</div>
@@ -115,15 +169,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 <div class="footer">대상정보통신 · 부산시 남구 동명로 146번길 123 · 010-4551-7240</div>
 </div>
 
-<!-- 문제해결 -->
+<!-- ══ 문제해결 ══ -->
 <div id="top-knowledge" class="top-panel">
 <div class="inner">
   <div class="search-row">
-    <input class="search-input" id="kbSearch" placeholder="🔍 키워드 검색 (겹치는 단어로 찾기)..." oninput="renderKb()">
+    <input class="search-input" id="kbSearch" placeholder="🔍 키워드 검색..." oninput="renderKb()">
     <button class="btn btn-navy" onclick="toggleKbForm()">✏️ 새 글 작성</button>
   </div>
   <div class="form-box" id="kbForm" style="display:none;">
-    <div class="form-box-title">✏️ 문제해결 메모 작성</div>
+    <div class="form-box-title" style="cursor:default;">✏️ 문제해결 메모 작성</div>
     <input class="finput" id="kbTitle" placeholder="제목 (예: POS 영수증 안 나올 때)">
     <textarea class="ftextarea" id="kbBody" placeholder="증상, 원인, 해결 방법 등을 자세히 작성하세요..."></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -135,14 +189,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 </div>
 </div>
 
-<!-- CMS 등록 -->
+<!-- ══ CMS ══ -->
 <div id="top-cms" class="top-panel">
 <div class="inner">
   <div class="search-row">
     <input class="search-input" id="cmsSearch" placeholder="🔍 상호명 · 사업자번호 검색..." oninput="renderCms()">
   </div>
   <div class="form-box">
-    <div class="form-box-title">➕ CMS 등록</div>
+    <div class="form-box-title" style="cursor:default;">➕ CMS 등록</div>
     <div class="fg">
       <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="cmsName" placeholder="가맹점 상호명"></div>
       <div class="fg-group"><label class="flabel">사업자번호</label><input class="fginput" id="cmsBizno" placeholder="000-00-00000"></div>
@@ -154,13 +208,124 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
   </div>
   <div class="tbl-wrap">
     <table class="tbl">
-      <thead><tr>
-        <th>상호명</th><th>사업자번호</th><th>CMS 금액</th><th>출금일</th><th>메모</th><th>등록일</th><th style="width:46px">삭제</th>
-      </tr></thead>
+      <thead><tr><th>상호명</th><th>사업자번호</th><th>CMS 금액</th><th>출금일</th><th>메모</th><th>등록일</th><th style="width:46px">삭제</th></tr></thead>
       <tbody id="cmsList"><tr><td colspan="7" class="empty">등록된 CMS 정보가 없습니다.</td></tr></tbody>
     </table>
   </div>
 </div>
+</div>
+
+<!-- ══ 택배 ══ -->
+<div id="top-parcel" class="top-panel">
+<div class="inner">
+
+  <!-- 택배기사 관리 (접기/펼치기) -->
+  <div class="driver-box">
+    <div class="driver-head" onclick="toggleDriverBox()">
+      <div class="driver-head-title">🚚 택배기사 관리 <span id="driverCount" style="font-size:11px;color:var(--muted);font-weight:400;"></span></div>
+      <span id="driverArrow" style="color:var(--muted);">▼</span>
+    </div>
+    <div class="driver-body" id="driverBody" style="display:none;">
+      <div class="driver-list" id="driverList"></div>
+      <!-- 기사 등록 폼 -->
+      <div style="background:var(--bg);border-radius:9px;padding:12px;border:1px solid var(--line);">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">기사 등록</div>
+        <div class="fg" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
+          <div class="fg-group"><label class="flabel">이름 *</label><input class="fginput" id="drName" placeholder="홍길동"></div>
+          <div class="fg-group"><label class="flabel">택배사</label><input class="fginput" id="drCompany" placeholder="CJ대한통운"></div>
+          <div class="fg-group"><label class="flabel">은행</label><input class="fginput" id="drBank" placeholder="국민은행"></div>
+          <div class="fg-group"><label class="flabel">계좌번호</label><input class="fginput" id="drAccount" placeholder="000-00-000000"></div>
+          <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-navy btn-sm" onclick="saveDriver()" style="width:100%;padding:8px;">기사 등록</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 택배 등록 폼 -->
+  <div class="form-box">
+    <div class="form-box-title" style="cursor:default;">📦 택배 등록</div>
+    <div class="fg">
+      <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="pName" placeholder="홍길동 마트"></div>
+      <div class="fg-group"><label class="flabel">전화번호</label><input class="fginput" id="pTel" placeholder="010-0000-0000"></div>
+      <div class="fg-group" style="grid-column:span 2;"><label class="flabel">주소 *</label><input class="fginput" id="pAddr" placeholder="부산시 남구 ..."></div>
+      <div class="fg-group"><label class="flabel">택배기사</label>
+        <select class="fginput" id="pDriver">
+          <option value="">기사 선택</option>
+        </select>
+      </div>
+      <div class="fg-group"><label class="flabel">결제방식 *</label>
+        <div style="display:flex;gap:10px;padding-top:6px;">
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;cursor:pointer;">
+            <input type="radio" name="payType" value="선불" checked style="accent-color:var(--blue);"> 선불
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;cursor:pointer;">
+            <input type="radio" name="payType" value="후불" style="accent-color:var(--gold);"> 후불
+          </label>
+        </div>
+      </div>
+      <div class="fg-group"><label class="flabel">기종</label><input class="fginput" id="pModel" placeholder="POS / CCTV / 카드단말기 등"></div>
+      <div class="fg-group"><label class="flabel">메모</label><input class="fginput" id="pMemo" placeholder="특이사항"></div>
+      <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-navy" onclick="saveParcel()" style="width:100%;">📦 등록</button></div>
+    </div>
+  </div>
+
+  <!-- 목록 상단 액션바 -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+    <span style="font-size:13px;font-weight:700;color:var(--navy);">📋 택배 목록</span>
+    <span id="parcelTodayBadge" style="font-size:11px;font-weight:700;padding:2px 8px;background:rgba(200,146,42,.12);color:var(--gold);border-radius:20px;"></span>
+    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm" onclick="selectAllParcels()">전체 선택</button>
+      <button class="btn btn-outline btn-sm" onclick="copyParcelText()">📋 텍스트 복사</button>
+      <button class="btn btn-blue btn-sm" onclick="copyDriverLink()">🔗 링크 복사 (선택)</button>
+      <button class="btn btn-red btn-sm" onclick="deleteCheckedParcels()">🗑 선택 삭제</button>
+    </div>
+  </div>
+
+  <div class="parcel-list" id="parcelList">
+    <div class="empty">등록된 택배가 없습니다.</div>
+  </div>
+</div>
+</div>
+
+<!-- ══ 기사 뷰 (링크로 열릴 때) ══ -->
+<div class="driver-view" id="driverView">
+  <div class="dv-header">
+    <div class="dv-title">📦 배송 목록</div>
+    <div class="dv-sub" id="dvSub">송장번호를 입력해 주세요</div>
+  </div>
+  <div id="dvList"></div>
+</div>
+
+<!-- 다시보내기 모달 -->
+<div id="reshipModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--panel);border-radius:14px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+    <div style="background:var(--navy);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:15px;font-weight:900;color:#fff;">↩️ 다시보내기 (수정 후 저장)</span>
+      <button onclick="closeReshipModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:15px;">✕</button>
+    </div>
+    <div style="padding:18px;">
+      <div class="fg" style="grid-template-columns:1fr 1fr;gap:9px;">
+        <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="rs_name" placeholder="상호명"></div>
+        <div class="fg-group"><label class="flabel">전화번호</label><input class="fginput" id="rs_tel" placeholder="010-0000-0000"></div>
+        <div class="fg-group" style="grid-column:span 2;"><label class="flabel">주소 *</label><input class="fginput" id="rs_addr" placeholder="주소"></div>
+        <div class="fg-group"><label class="flabel">기종</label><input class="fginput" id="rs_model" placeholder="POS / CCTV 등"></div>
+        <div class="fg-group"><label class="flabel">택배기사</label>
+          <select class="fginput" id="rs_driver"></select>
+        </div>
+        <div class="fg-group"><label class="flabel">결제방식</label>
+          <div style="display:flex;gap:10px;padding-top:6px;">
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;cursor:pointer;"><input type="radio" name="rsPayType" value="선불" style="accent-color:var(--blue);"> 선불</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;cursor:pointer;"><input type="radio" name="rsPayType" value="후불" style="accent-color:var(--gold);"> 후불</label>
+          </div>
+        </div>
+        <div class="fg-group"><label class="flabel">메모</label><input class="fginput" id="rs_memo" placeholder="특이사항"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+        <button class="btn btn-outline" onclick="closeReshipModal()">취소</button>
+        <button class="btn btn-navy" onclick="saveReship()">📦 새로 등록</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -177,8 +342,64 @@ firebase.initializeApp({
   appId:"1:1003933998008:web:cfd41be7aa36fada564d4d"
 });
 const db=firebase.database();
-let kbItems=[],cmsItems=[],toastTimer=null;
+let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],toastTimer=null;
 
+// ── URL 파라미터 체크: 기사 뷰 ──
+const urlParams=new URLSearchParams(location.search);
+const driverMode=urlParams.get('driver');
+const shareIds=urlParams.get('ids');
+
+if(driverMode && shareIds){
+  // 기사 뷰 모드
+  document.getElementById('mainTabBar').style.display='none';
+  document.querySelectorAll('.top-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.header').style.display='none';
+  document.getElementById('driverView').classList.add('show');
+  loadDriverView(driverMode, shareIds.split(','));
+}
+
+async function loadDriverView(driverId, ids){
+  const dvSub=document.getElementById('dvSub');
+  const dvList=document.getElementById('dvList');
+  // 기사 정보
+  const drSnap=await db.ref('drivers/'+driverId).once('value');
+  const dr=drSnap.val();
+  if(dr) dvSub.textContent=(dr.name||'')+'기사님 배송 목록';
+  // 택배 정보
+  dvList.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);">불러오는 중...</div>';
+  const parcels=[];
+  for(const id of ids){
+    const snap=await db.ref('parcels/'+id).once('value');
+    const p=snap.val(); if(p) parcels.push(p);
+  }
+  if(!parcels.length){dvList.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);">배송 항목이 없습니다.</div>';return;}
+  dvList.innerHTML=parcels.map(p=>`<div class="dv-item ${p.tracking?'done':''}" id="dv-${p.id}">
+    <div class="dv-name">${esc(p.name)} <span style="font-size:12px;font-weight:400;color:${p.payType==='선불'?'var(--blue)':'var(--gold)'};">${esc(p.payType||'')}</span></div>
+    <div class="dv-addr">📍 ${esc(p.addr||'')} ${p.tel?'· 📞 '+esc(p.tel):''} ${p.model?'<br>📦 기종: '+esc(p.model):''}</div>
+    ${p.tracking
+      ?`<div style="font-family:monospace;font-weight:700;color:var(--green);font-size:14px;">✅ 송장: ${esc(p.tracking)}</div>`
+      :`<div class="dv-track-row">
+          <input class="dv-track-input" id="dvt-${p.id}" placeholder="송장번호 입력..." value="">
+          <button class="btn btn-green btn-sm" onclick="saveTracking('${p.id}','dvt-${p.id}','dv-${p.id}')">저장</button>
+        </div>`
+    }
+  </div>`).join('');
+}
+
+async function saveTracking(parcelId, inputId, itemId){
+  const val=document.getElementById(inputId)?.value.trim();
+  if(!val){showToast('⚠️ 송장번호를 입력하세요');return;}
+  await db.ref('parcels/'+parcelId+'/tracking').set(val);
+  const item=document.getElementById(itemId);
+  if(item){
+    item.classList.add('done');
+    const row=item.querySelector('.dv-track-row');
+    if(row) row.outerHTML=`<div style="font-family:monospace;font-weight:700;color:var(--green);font-size:14px;">✅ 송장: ${esc(val)}</div>`;
+  }
+  showToast('✅ 송장번호 저장됨');
+}
+
+// ── 공통 ──
 function switchTop(name,el){
   document.querySelectorAll('.top-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.top-tab-btn').forEach(b=>b.classList.remove('active'));
@@ -187,95 +408,251 @@ function switchTop(name,el){
 }
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function hl(text,kw){
-  if(!kw)return esc(text);
-  const e=esc(text),ek=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  return e.replace(new RegExp(ek,'gi'),m=>`<span class="hl">${m}</span>`);
-}
+function hl(text,kw){if(!kw)return esc(text);const e=esc(text),ek=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return e.replace(new RegExp(ek,'gi'),m=>`<span class="hl">${m}</span>`);}
 
 // ── 문제해결 ──
-function toggleKbForm(){
-  const f=document.getElementById('kbForm');
-  const open=f.style.display==='block';
-  f.style.display=open?'none':'block';
-  if(!open)document.getElementById('kbTitle').focus();
-}
+function toggleKbForm(){const f=document.getElementById('kbForm');const open=f.style.display==='block';f.style.display=open?'none':'block';if(!open)document.getElementById('kbTitle').focus();}
 async function saveKb(){
   const title=document.getElementById('kbTitle').value.trim();
   const body=document.getElementById('kbBody').value.trim();
   if(!title){showToast('⚠️ 제목을 입력하세요');return;}
   if(!body){showToast('⚠️ 내용을 입력하세요');return;}
   const data={id:'KB'+Date.now(),title,body,createdAt:Date.now()};
-  try{
-    await db.ref('knowledge/'+data.id).set(data);
-    document.getElementById('kbTitle').value='';
-    document.getElementById('kbBody').value='';
-    document.getElementById('kbForm').style.display='none';
-    showToast('✅ 저장 완료');
-  }catch(e){showToast('❌ 저장 실패: '+e.message);}
+  try{await db.ref('knowledge/'+data.id).set(data);document.getElementById('kbTitle').value='';document.getElementById('kbBody').value='';document.getElementById('kbForm').style.display='none';showToast('✅ 저장 완료');}
+  catch(e){showToast('❌ 저장 실패: '+e.message);}
 }
-async function deleteKb(id){
-  if(!confirm('삭제할까요?'))return;
-  await db.ref('knowledge/'+id).remove();
-  showToast('🗑 삭제됨');
-}
+async function deleteKb(id){if(!confirm('삭제할까요?'))return;await db.ref('knowledge/'+id).remove();showToast('🗑 삭제됨');}
 function renderKb(){
   const kw=(document.getElementById('kbSearch')?.value||'').toLowerCase().trim();
   const list=document.getElementById('kbList');
   let filtered=[...kbItems].filter(k=>!kw||(k.title.toLowerCase().includes(kw)||k.body.toLowerCase().includes(kw)));
   filtered.sort((a,b)=>b.createdAt-a.createdAt);
-  if(!filtered.length){list.innerHTML=`<div class="empty">${kw?'"'+kw+'" 검색 결과가 없습니다.':'저장된 문제해결 메모가 없습니다.'}</div>`;return;}
-  list.innerHTML=filtered.map(k=>`<div class="kb-item">
-    <div class="kb-head">
-      <div class="kb-title">${hl(k.title,kw)}</div>
-      <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
-        <span class="kb-date">${new Date(k.createdAt).toLocaleDateString('ko-KR')}</span>
-        <button class="btn btn-red btn-sm" onclick="deleteKb('${k.id}')">🗑</button>
-      </div>
-    </div>
-    <div class="kb-body">${hl(k.body,kw)}</div>
-  </div>`).join('');
+  if(!filtered.length){list.innerHTML=`<div class="empty">${kw?'"'+kw+'" 검색 결과 없음':'저장된 메모가 없습니다.'}</div>`;return;}
+  list.innerHTML=filtered.map(k=>`<div class="kb-item"><div class="kb-head"><div class="kb-title">${hl(k.title,kw)}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0;"><span class="kb-date">${new Date(k.createdAt).toLocaleDateString('ko-KR')}</span><button class="btn btn-red btn-sm" onclick="deleteKb('${k.id}')">🗑</button></div></div><div class="kb-body">${hl(k.body,kw)}</div></div>`).join('');
 }
 db.ref('knowledge').on('value',snap=>{const d=snap.val();kbItems=d?Object.values(d):[];renderKb();});
 
 // ── CMS ──
 async function saveCms(){
   const name=document.getElementById('cmsName').value.trim();
-  const bizno=document.getElementById('cmsBizno').value.trim();
   const amount=Number(document.getElementById('cmsAmount').value)||0;
-  const dueday=document.getElementById('cmsDueday').value.trim();
-  const memo=document.getElementById('cmsMemo').value.trim();
   if(!name){showToast('⚠️ 상호명을 입력하세요');return;}
   if(!amount){showToast('⚠️ CMS 금액을 입력하세요');return;}
-  const data={id:'CMS'+Date.now(),name,bizno,amount,dueday,memo,createdAt:Date.now()};
-  try{
-    await db.ref('cms/'+data.id).set(data);
-    ['cmsName','cmsBizno','cmsAmount','cmsDueday','cmsMemo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    showToast('✅ CMS 등록 완료');
-  }catch(e){showToast('❌ 저장 실패: '+e.message);}
+  const data={id:'CMS'+Date.now(),name,bizno:document.getElementById('cmsBizno').value.trim(),amount,dueday:document.getElementById('cmsDueday').value.trim(),memo:document.getElementById('cmsMemo').value.trim(),createdAt:Date.now()};
+  try{await db.ref('cms/'+data.id).set(data);['cmsName','cmsBizno','cmsAmount','cmsDueday','cmsMemo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});showToast('✅ CMS 등록 완료');}
+  catch(e){showToast('❌ 저장 실패: '+e.message);}
 }
-async function deleteCms(id){
-  if(!confirm('삭제할까요?'))return;
-  await db.ref('cms/'+id).remove();
-  showToast('🗑 삭제됨');
-}
+async function deleteCms(id){if(!confirm('삭제할까요?'))return;await db.ref('cms/'+id).remove();showToast('🗑 삭제됨');}
 function renderCms(){
   const kw=(document.getElementById('cmsSearch')?.value||'').toLowerCase().trim();
   const tbody=document.getElementById('cmsList');
   let filtered=[...cmsItems].filter(c=>!kw||((c.name||'').toLowerCase().includes(kw)||(c.bizno||'').toLowerCase().includes(kw)));
   filtered.sort((a,b)=>b.createdAt-a.createdAt);
-  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="7" class="empty">${kw?'"'+kw+'" 검색 결과가 없습니다.':'등록된 CMS 정보가 없습니다.'}</td></tr>`;return;}
-  tbody.innerHTML=filtered.map(c=>`<tr>
-    <td style="font-weight:700">${esc(c.name)}</td>
-    <td style="font-family:monospace">${esc(c.bizno||'-')}</td>
-    <td style="font-family:monospace;font-weight:700;color:var(--navy)">${(c.amount||0).toLocaleString()}원</td>
-    <td>${esc(c.dueday||'-')}</td>
-    <td style="color:var(--muted)">${esc(c.memo||'')}</td>
-    <td style="color:var(--muted);font-size:12px">${new Date(c.createdAt).toLocaleDateString('ko-KR')}</td>
-    <td><button class="btn btn-red btn-sm" onclick="deleteCms('${c.id}')">🗑</button></td>
-  </tr>`).join('');
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="7" class="empty">${kw?'"'+kw+'" 검색 결과 없음':'등록된 CMS 정보가 없습니다.'}</td></tr>`;return;}
+  tbody.innerHTML=filtered.map(c=>`<tr><td style="font-weight:700">${esc(c.name)}</td><td style="font-family:monospace">${esc(c.bizno||'-')}</td><td style="font-family:monospace;font-weight:700;color:var(--navy)">${(c.amount||0).toLocaleString()}원</td><td>${esc(c.dueday||'-')}</td><td style="color:var(--muted)">${esc(c.memo||'')}</td><td style="color:var(--muted);font-size:12px">${new Date(c.createdAt).toLocaleDateString('ko-KR')}</td><td><button class="btn btn-red btn-sm" onclick="deleteCms('${c.id}')">🗑</button></td></tr>`).join('');
 }
 db.ref('cms').on('value',snap=>{const d=snap.val();cmsItems=d?Object.values(d):[];renderCms();});
+
+// ── 택배기사 ──
+function toggleDriverBox(){
+  const body=document.getElementById('driverBody');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  document.getElementById('driverArrow').textContent=open?'▼':'▲';
+}
+async function saveDriver(){
+  const name=document.getElementById('drName').value.trim();
+  if(!name){showToast('⚠️ 이름을 입력하세요');return;}
+  const data={id:'DR'+Date.now(),name,company:document.getElementById('drCompany').value.trim(),bank:document.getElementById('drBank').value.trim(),account:document.getElementById('drAccount').value.trim(),createdAt:Date.now()};
+  try{
+    await db.ref('drivers/'+data.id).set(data);
+    ['drName','drCompany','drBank','drAccount'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    showToast('✅ 기사 등록 완료');
+  }catch(e){showToast('❌ 저장 실패');}
+}
+async function deleteDriver(id){if(!confirm('삭제할까요?'))return;await db.ref('drivers/'+id).remove();showToast('🗑 삭제됨');}
+function renderDrivers(){
+  const list=document.getElementById('driverList');
+  const sel=document.getElementById('pDriver');
+  const prevVal=sel?.value;
+  // 셀렉트 업데이트
+  if(sel){
+    sel.innerHTML='<option value="">기사 선택</option>'+driverItems.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+    if(prevVal) sel.value=prevVal;
+  }
+  document.getElementById('driverCount').textContent=driverItems.length?`(${driverItems.length}명)`:'';
+  if(!driverItems.length){list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">등록된 기사가 없습니다.</div>';return;}
+  list.innerHTML=driverItems.map(d=>`<div class="driver-item">
+    <div style="flex:1;">
+      <div class="driver-name">🚚 ${esc(d.name)}</div>
+      <div class="driver-bank">${d.company?'['+esc(d.company)+'] ':''} ${d.bank?esc(d.bank)+' ':''} ${d.account?esc(d.account):''}</div>
+    </div>
+    <button class="btn btn-red btn-sm" onclick="deleteDriver('${d.id}')">🗑</button>
+  </div>`).join('');
+}
+db.ref('drivers').on('value',snap=>{const d=snap.val();driverItems=d?Object.values(d):[];renderDrivers();});
+
+// ── 택배 ──
+async function saveParcel(){
+  const name=document.getElementById('pName').value.trim();
+  const addr=document.getElementById('pAddr').value.trim();
+  if(!name){showToast('⚠️ 상호명을 입력하세요');return;}
+  if(!addr){showToast('⚠️ 주소를 입력하세요');return;}
+  const payType=document.querySelector('input[name="payType"]:checked')?.value||'선불';
+  const driverId=document.getElementById('pDriver').value;
+  const driverName=driverItems.find(d=>d.id===driverId)?.name||'';
+  const data={id:'PC'+Date.now(),name,tel:document.getElementById('pTel').value.trim(),addr,payType,driverId,driverName,model:document.getElementById('pModel').value.trim(),memo:document.getElementById('pMemo').value.trim(),tracking:'',createdAt:Date.now(),date:new Date().toISOString().split('T')[0]};
+  try{
+    await db.ref('parcels/'+data.id).set(data);
+    ['pName','pTel','pAddr','pModel','pMemo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    showToast('✅ 택배 등록 완료');
+  }catch(e){showToast('❌ 저장 실패');}
+}
+async function deleteParcel(id){if(!confirm('삭제할까요?'))return;await db.ref('parcels/'+id).remove();showToast('🗑 삭제됨');}
+async function deleteCheckedParcels(){
+  const checked=parcelItems.filter(p=>document.getElementById('chk-'+p.id)?.checked);
+  if(!checked.length){showToast('⚠️ 삭제할 항목을 선택하세요');return;}
+  if(!confirm(checked.length+'개를 삭제할까요?'))return;
+  for(const p of checked) await db.ref('parcels/'+p.id).remove();
+  showToast('🗑 '+checked.length+'개 삭제됨');
+}
+function selectAllParcels(){
+  const all=parcelItems.every(p=>document.getElementById('chk-'+p.id)?.checked);
+  parcelItems.forEach(p=>{const el=document.getElementById('chk-'+p.id);if(el)el.checked=!all;});
+}
+async function saveParcelTracking(id){
+  const val=document.getElementById('trk-'+id)?.value.trim();
+  if(!val){showToast('⚠️ 송장번호를 입력하세요');return;}
+  await db.ref('parcels/'+id+'/tracking').set(val);
+  showToast('✅ 송장번호 저장됨');
+}
+function copyParcelText(){
+  const checked=parcelItems.filter(p=>document.getElementById('chk-'+p.id)?.checked);
+  if(!checked.length){showToast('⚠️ 항목을 선택하세요');return;}
+  const lines=checked.map((p,i)=>{
+    const parts=[
+      `[${i+1}] ${p.name}`,
+      `주소: ${p.addr||''}`,
+      p.tel?`전화: ${p.tel}`:'',
+      p.model?`기종: ${p.model}`:'',
+      `결제: ${p.payType||''}`,
+      p.tracking?`송장: ${p.tracking}`:'',
+      p.memo?`메모: ${p.memo}`:'',
+    ].filter(Boolean);
+    return parts.join('\n');
+  });
+  const text=lines.join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    showToast('✅ '+checked.length+'개 텍스트 복사됨!');
+  }).catch(()=>{
+    prompt('아래 내용을 복사하세요:',text);
+  });
+}
+function copyDriverLink(){
+  const checked=parcelItems.filter(p=>document.getElementById('chk-'+p.id)?.checked);
+  if(!checked.length){showToast('⚠️ 항목을 선택하세요');return;}
+  // 기사 ID 확인 (체크된 항목들의 기사)
+  const driverIds=[...new Set(checked.map(p=>p.driverId).filter(Boolean))];
+  const driverId=driverIds[0]||'all';
+  const ids=checked.map(p=>p.id).join(',');
+  const baseUrl=location.origin+location.pathname;
+  const link=`${baseUrl}?driver=${driverId}&ids=${ids}`;
+  navigator.clipboard.writeText(link).then(()=>{
+    showToast('✅ 링크 복사됨! 기사에게 전송하세요.');
+  }).catch(()=>{
+    prompt('아래 링크를 복사하세요:',link);
+  });
+}
+function updateParcelTabLabel(){
+  const today=new Date().toISOString().split('T')[0];
+  const todayCount=parcelItems.filter(p=>p.date===today).length;
+  const btn=document.getElementById('parcelTabBtn');
+  const badge=document.getElementById('parcelTodayBadge');
+  if(btn) btn.textContent='📦 택배등록'+(todayCount>0?` (${todayCount})`:'');
+  if(badge) badge.textContent=todayCount>0?`오늘 ${todayCount}건`:'';
+}
+function renderParcels(){
+  const list=document.getElementById('parcelList');
+  const sorted=[...parcelItems].sort((a,b)=>b.createdAt-a.createdAt);
+  if(!sorted.length){list.innerHTML='<div class="empty">등록된 택배가 없습니다.</div>';return;}
+  const today=new Date().toISOString().split('T')[0];
+  list.innerHTML=sorted.map(p=>`<div class="parcel-item ${p.tracking?'tracked':''}" id="pi-${p.id}">
+    <input type="checkbox" class="parcel-chk" id="chk-${p.id}">
+    <div class="parcel-info">
+      <div class="parcel-main">
+        ${esc(p.name)}
+        <span class="parcel-badge ${p.payType==='선불'?'badge-prepaid':'badge-postpaid'}">${esc(p.payType||'')}</span>
+        ${p.date===today?'<span style="font-size:11px;color:var(--green);font-weight:700;margin-left:4px;">오늘</span>':''}
+      </div>
+      <div class="parcel-sub">📍 ${esc(p.addr||'')} ${p.tel?'· 📞 '+esc(p.tel):''} ${p.model?'· 📦 '+esc(p.model):''} ${p.driverName?'· 🚚 '+esc(p.driverName):''}</div>
+    </div>
+    ${p.tracking
+      ?`<div class="tracking-done">✅ ${esc(p.tracking)}</div>`
+      :`<div class="parcel-tracking">
+          <input class="tracking-input" id="trk-${p.id}" placeholder="송장번호" value="">
+          <button class="btn btn-green btn-sm" onclick="saveParcelTracking('${p.id}')">저장</button>
+        </div>`
+    }
+    <button class="btn btn-outline btn-sm" onclick="reshipParcel('${p.id}')">↩️ 다시보내기</button>
+    <button class="btn btn-red btn-sm" onclick="deleteParcel('${p.id}')">🗑</button>
+  </div>`).join('');
+  updateParcelTabLabel();
+}
+let reshipTargetId = null;
+function reshipParcel(id){
+  const p=parcelItems.find(x=>x.id===id);
+  if(!p)return;
+  reshipTargetId=id;
+  // 폼에 기존 데이터 채우기
+  document.getElementById('rs_name').value=p.name||'';
+  document.getElementById('rs_tel').value=p.tel||'';
+  document.getElementById('rs_addr').value=p.addr||'';
+  document.getElementById('rs_model').value=p.model||'';
+  document.getElementById('rs_memo').value=p.memo||'';
+  // 결제방식
+  document.querySelectorAll('input[name="rsPayType"]').forEach(r=>{r.checked=(r.value===(p.payType||'선불'));});
+  // 기사 셀렉트
+  const sel=document.getElementById('rs_driver');
+  sel.innerHTML='<option value="">기사 선택</option>'+driverItems.map(d=>`<option value="${d.id}" ${d.id===p.driverId?'selected':''}>${esc(d.name)}</option>`).join('');
+  // 모달 오픈
+  const modal=document.getElementById('reshipModal');
+  modal.style.display='flex';
+}
+function closeReshipModal(){
+  document.getElementById('reshipModal').style.display='none';
+  reshipTargetId=null;
+}
+async function saveReship(){
+  const name=document.getElementById('rs_name').value.trim();
+  const addr=document.getElementById('rs_addr').value.trim();
+  if(!name){showToast('⚠️ 상호명을 입력하세요');return;}
+  if(!addr){showToast('⚠️ 주소를 입력하세요');return;}
+  const payType=document.querySelector('input[name="rsPayType"]:checked')?.value||'선불';
+  const driverId=document.getElementById('rs_driver').value;
+  const driverName=driverItems.find(d=>d.id===driverId)?.name||'';
+  const data={
+    id:'PC'+Date.now(),
+    name,
+    tel:document.getElementById('rs_tel').value.trim(),
+    addr,
+    payType,driverId,driverName,
+    model:document.getElementById('rs_model').value.trim(),
+    memo:document.getElementById('rs_memo').value.trim(),
+    tracking:'',
+    createdAt:Date.now(),
+    date:new Date().toISOString().split('T')[0],
+    reshipFrom:reshipTargetId||''
+  };
+  try{
+    await db.ref('parcels/'+data.id).set(data);
+    closeReshipModal();
+    showToast('✅ 새로 등록 완료!');
+  }catch(e){showToast('❌ 저장 실패: '+e.message);}
+}
+// 모달 배경 클릭 닫기
+document.getElementById('reshipModal').addEventListener('click',function(e){if(e.target===this)closeReshipModal();});
+
+db.ref('parcels').on('value',snap=>{const d=snap.val();parcelItems=d?Object.values(d):[];renderParcels();});
 </script>
 </body>
 </html>
