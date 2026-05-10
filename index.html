@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대상정보통신 통합 관리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1a2744;--navy2:#243358;--gold:#c8922a;--bg:#f7f5f0;--line:#e5ddd0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* 헤더 */
+.header{background:var(--navy);border-bottom:3px solid var(--gold);padding:0 20px;height:50px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.logo{font-size:17px;font-weight:900;color:#fff;}
+.logo span{color:var(--gold);}
+.logo-sub{font-size:11px;color:rgba(255,255,255,.4);}
+
+/* 탭바 */
+.tab-bar{background:var(--navy2);display:flex;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{padding:0 18px;height:44px;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s;flex-shrink:0;}
+.tab-btn:hover{color:rgba(255,255,255,.85);}
+.tab-btn.active{color:#fff;border-bottom-color:var(--gold);background:rgba(255,255,255,.06);}
+.tab-divider{width:1px;background:rgba(255,255,255,.1);margin:8px 0;flex-shrink:0;}
+
+/* iframe 영역 */
+.frame-wrap{flex:1;position:relative;overflow:hidden;}
+.frame-panel{display:none;position:absolute;inset:0;}
+.frame-panel.active{display:block;}
+.frame-panel iframe{width:100%;height:100%;border:none;}
+
+/* 로딩 */
+.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);gap:14px;font-size:14px;color:#888;}
+.spinner{width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">대상<span>정보통신</span></div>
+  <div class="logo-sub">통합 관리 시스템</div>
+</header>
+
+<div class="tab-bar" id="tabBar">
+  <!-- 탭 버튼은 JS로 생성 -->
+</div>
+
+<div class="frame-wrap" id="frameWrap">
+  <!-- 패널은 JS로 생성 -->
+</div>
+
+<script>
+const TABS = [
+  { id:'repair',    icon:'🔧', label:'AS 관리',         url:'https://daesang-as.pages.dev/' },
+  { id:'contract',  icon:'📄', label:'전자계약서',       url:'https://daesang-electronic.pages.dev' },
+  { id:'menu',      icon:'📊', label:'메뉴툴 (대리점)',  url:'https://okpos-menu-tool.pages.dev/menu-tool' },
+  { id:'menuadmin', icon:'⚙️', label:'메뉴툴 (관리자)', url:'https://okpos-menu-tool.pages.dev/admin' },
+  { id:'attend',    icon:'🕐', label:'출퇴근 (가맹점)',  url:'https://daesang-attendance.pages.dev/?code=DSAJ3XU9' },
+  { id:'attendadmin',icon:'👤',label:'출퇴근 (관리자)', url:'https://daesang-attendance.pages.dev/admin' },
+];
+
+const tabBar   = document.getElementById('tabBar');
+const frameWrap= document.getElementById('frameWrap');
+let loaded = {}; // 한 번 로드된 탭은 재로드 안 함
+
+// 탭 버튼 + 패널 생성
+TABS.forEach((tab, i) => {
+  // 버튼
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+  btn.dataset.id = tab.id;
+  btn.innerHTML = `${tab.icon} ${tab.label}`;
+  btn.onclick = () => switchTab(tab.id);
+  tabBar.appendChild(btn);
+
+  // 패널
+  const panel = document.createElement('div');
+  panel.className = 'frame-panel' + (i === 0 ? ' active' : '');
+  panel.id = 'panel-' + tab.id;
+  panel.innerHTML = `
+    <div class="loading" id="loading-${tab.id}">
+      <div class="spinner"></div>
+      <div>${tab.label} 불러오는 중...</div>
+    </div>
+    <iframe id="frame-${tab.id}" src="" title="${tab.label}"
+      onload="document.getElementById('loading-${tab.id}').style.display='none'"></iframe>`;
+  frameWrap.appendChild(panel);
+});
+
+// 첫 번째 탭 자동 로드
+loadTab(TABS[0].id);
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  document.querySelectorAll('.frame-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
+  loadTab(id);
+  // URL 해시로 상태 저장
+  location.hash = id;
+}
+
+function loadTab(id) {
+  if (loaded[id]) return; // 이미 로드됨
+  const tab = TABS.find(t => t.id === id);
+  if (!tab) return;
+  const frame = document.getElementById('frame-' + id);
+  if (frame && !frame.src) {
+    frame.src = tab.url;
+    loaded[id] = true;
+  }
+}
+
+// URL 해시로 탭 복원
+window.addEventListener('load', () => {
+  const hash = location.hash.replace('#', '');
+  if (hash && TABS.find(t => t.id === hash)) {
+    switchTab(hash);
+  }
+});
+</script>
+</body>
+</html>
