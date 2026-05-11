@@ -204,12 +204,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
     <button class="btn btn-navy" onclick="toggleKbForm()">✏️ 새 글 작성</button>
   </div>
   <div class="form-box" id="kbForm" style="display:none;">
-    <div class="form-box-title" style="cursor:default;">✏️ 문제해결 메모 작성</div>
+    <div class="form-box-title" id="kbFormTitle" style="cursor:default;">✏️ 문제해결 메모 작성</div>
     <input class="finput" id="kbTitle" placeholder="제목 (예: POS 영수증 안 나올 때)">
     <textarea class="ftextarea" id="kbBody" placeholder="증상, 원인, 해결 방법 등을 자세히 작성하세요..."></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-outline btn-sm" onclick="toggleKbForm()">취소</button>
-      <button class="btn btn-gold btn-sm" onclick="saveKb()">💾 저장</button>
+      <button class="btn btn-outline btn-sm" onclick="closeKbForm()">취소</button>
+      <button class="btn btn-gold btn-sm" id="kbSaveBtn" onclick="saveKb()">💾 저장</button>
     </div>
   </div>
   <div class="kb-list" id="kbList"><div class="empty">저장된 문제해결 메모가 없습니다.</div></div>
@@ -371,7 +371,7 @@ firebase.initializeApp({
   appId:"1:1003933998008:web:cfd41be7aa36fada564d4d"
 });
 const db=firebase.database();
-let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],toastTimer=null;
+let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],toastTimer=null,editingKbId=null;
 
 // ── URL 파라미터 체크: 기사 뷰 ──
 const urlParams=new URLSearchParams(location.search);
@@ -447,15 +447,48 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function hl(text,kw){if(!kw)return esc(text);const e=esc(text),ek=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return e.replace(new RegExp(ek,'gi'),m=>`<span class="hl">${m}</span>`);}
 
 // ── 문제해결 ──
-function toggleKbForm(){const f=document.getElementById('kbForm');const open=f.style.display==='block';f.style.display=open?'none':'block';if(!open)document.getElementById('kbTitle').focus();}
+function closeKbForm(){
+  editingKbId=null;
+  document.getElementById('kbTitle').value='';
+  document.getElementById('kbBody').value='';
+  document.getElementById('kbFormTitle').textContent='✏️ 문제해결 메모 작성';
+  document.getElementById('kbSaveBtn').textContent='💾 저장';
+  document.getElementById('kbForm').style.display='none';
+}
+function toggleKbForm(){
+  const f=document.getElementById('kbForm');
+  const open=f.style.display==='block';
+  if(open){closeKbForm();return;}
+  editingKbId=null;
+  document.getElementById('kbFormTitle').textContent='✏️ 문제해결 메모 작성';
+  document.getElementById('kbSaveBtn').textContent='💾 저장';
+  f.style.display='block';
+  document.getElementById('kbTitle').focus();
+}
 async function saveKb(){
   const title=document.getElementById('kbTitle').value.trim();
   const body=document.getElementById('kbBody').value.trim();
   if(!title){showToast('⚠️ 제목을 입력하세요');return;}
   if(!body){showToast('⚠️ 내용을 입력하세요');return;}
+  if(editingKbId){
+    try{await db.ref('knowledge/'+editingKbId).update({title,body,updatedAt:Date.now()});closeKbForm();showToast('✅ 수정 완료');}
+    catch(e){showToast('❌ 수정 실패: '+e.message);}
+    return;
+  }
   const data={id:'KB'+Date.now(),title,body,createdAt:Date.now()};
-  try{await db.ref('knowledge/'+data.id).set(data);document.getElementById('kbTitle').value='';document.getElementById('kbBody').value='';document.getElementById('kbForm').style.display='none';showToast('✅ 저장 완료');}
+  try{await db.ref('knowledge/'+data.id).set(data);closeKbForm();showToast('✅ 저장 완료');}
   catch(e){showToast('❌ 저장 실패: '+e.message);}
+}
+function editKb(id){
+  const item=kbItems.find(k=>k.id===id);
+  if(!item){showToast('⚠️ 수정할 글을 찾을 수 없습니다');return;}
+  editingKbId=id;
+  document.getElementById('kbTitle').value=item.title||'';
+  document.getElementById('kbBody').value=item.body||'';
+  document.getElementById('kbFormTitle').textContent='✏️ 문제해결 메모 수정';
+  document.getElementById('kbSaveBtn').textContent='💾 수정 저장';
+  document.getElementById('kbForm').style.display='block';
+  document.getElementById('kbTitle').focus();
 }
 async function deleteKb(id){if(!confirm('삭제할까요?'))return;await db.ref('knowledge/'+id).remove();showToast('🗑 삭제됨');}
 function renderKb(){
@@ -464,7 +497,7 @@ function renderKb(){
   let filtered=[...kbItems].filter(k=>!kw||(k.title.toLowerCase().includes(kw)||k.body.toLowerCase().includes(kw)));
   filtered.sort((a,b)=>b.createdAt-a.createdAt);
   if(!filtered.length){list.innerHTML=`<div class="empty">${kw?'"'+kw+'" 검색 결과 없음':'저장된 메모가 없습니다.'}</div>`;return;}
-  list.innerHTML=filtered.map(k=>`<div class="kb-item"><div class="kb-head"><div class="kb-title">${hl(k.title,kw)}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0;"><span class="kb-date">${new Date(k.createdAt).toLocaleDateString('ko-KR')}</span><button class="btn btn-red btn-sm" onclick="deleteKb('${k.id}')">🗑</button></div></div><div class="kb-body">${hl(k.body,kw)}</div></div>`).join('');
+  list.innerHTML=filtered.map(k=>`<div class="kb-item"><div class="kb-head"><div class="kb-title">${hl(k.title,kw)}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0;"><span class="kb-date">${new Date(k.createdAt).toLocaleDateString('ko-KR')}</span><button class="btn btn-outline btn-sm" onclick="editKb('${k.id}')">수정</button><button class="btn btn-red btn-sm" onclick="deleteKb('${k.id}')">🗑</button></div></div><div class="kb-body">${hl(k.body,kw)}</div></div>`).join('');
 }
 db.ref('knowledge').on('value',snap=>{const d=snap.val();kbItems=d?Object.values(d):[];renderKb();});
 
