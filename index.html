@@ -116,6 +116,28 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .dv-track-input{flex:1;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font-family:'DM Mono',monospace;font-size:14px;outline:none;color:#1a2744;}
 .dv-track-input:focus{border-color:var(--green);}
 
+.pay-item{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.pay-item.done{border-color:var(--green);background:#f0fff4;}
+.pay-item.pending{border-color:var(--gold);background:#fffbf4;}
+.pay-item.complete{border-color:var(--green);background:#f0fff4;}
+.pay-amount{font-size:20px;font-weight:900;color:var(--navy);font-family:'DM Mono',monospace;}
+.pay-name{font-size:14px;font-weight:700;margin:4px 0;}
+.pay-time{font-size:12px;color:var(--muted);}
+.pay-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.pay-input{border:1.5px solid var(--line);border-radius:7px;padding:6px 10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;background:var(--bg);color:#1a2744;flex:1;min-width:120px;}
+.pay-input:focus{border-color:var(--gold);background:#fff;}
+.sch-card{background:var(--panel);border:1.5px solid var(--line);border-radius:11px;padding:16px;margin-bottom:12px;}
+.sch-card.complete{border-color:var(--green);background:#f0fff4;}
+.sch-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.sch-title{font-size:15px;font-weight:900;color:var(--navy);flex:1;}
+.sch-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.pay-stage{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.stage-item{flex:1;min-width:140px;background:var(--bg);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;}
+.stage-item.paid{border-color:var(--green);background:rgba(22,163,74,.06);}
+.stage-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;}
+.stage-amount{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--navy);}
+.stage-paid{font-size:11px;color:var(--green);font-weight:700;margin-top:3px;}
+.sms-link-btn{font-size:11px;padding:3px 8px;border:1px solid var(--blue);border-radius:5px;background:rgba(37,99,235,.06);color:var(--blue);cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:.3s;z-index:500;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .footer{text-align:center;font-size:12px;color:var(--muted);padding:14px;}
@@ -133,6 +155,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
   <button class="top-tab-btn" onclick="switchTop('knowledge',this)">💡 문제해결</button>
   <button class="top-tab-btn" onclick="switchTop('cms',this)">💳 CMS 등록</button>
   <button class="top-tab-btn" id="parcelTabBtn" onclick="switchTop('parcel',this)">📦 택배등록</button>
+  <button class="top-tab-btn" onclick="switchTop('payment',this)">💰 입금확인</button>
 </div>
 
 <!-- ══ 홈 ══ -->
@@ -204,12 +227,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
     <button class="btn btn-navy" onclick="toggleKbForm()">✏️ 새 글 작성</button>
   </div>
   <div class="form-box" id="kbForm" style="display:none;">
-    <div class="form-box-title" id="kbFormTitle" style="cursor:default;">✏️ 문제해결 메모 작성</div>
+    <div class="form-box-title" style="cursor:default;">✏️ 문제해결 메모 작성</div>
     <input class="finput" id="kbTitle" placeholder="제목 (예: POS 영수증 안 나올 때)">
     <textarea class="ftextarea" id="kbBody" placeholder="증상, 원인, 해결 방법 등을 자세히 작성하세요..."></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-outline btn-sm" onclick="closeKbForm()">취소</button>
-      <button class="btn btn-gold btn-sm" id="kbSaveBtn" onclick="saveKb()">💾 저장</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleKbForm()">취소</button>
+      <button class="btn btn-gold btn-sm" onclick="saveKb()">💾 저장</button>
     </div>
   </div>
   <div class="kb-list" id="kbList"><div class="empty">저장된 문제해결 메모가 없습니다.</div></div>
@@ -357,6 +380,48 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
   </div>
 </div>
 
+<!-- ══ 입금확인 탭 ══ -->
+<div id="top-payment" class="top-panel">
+<div class="inner">
+
+  <!-- 서브탭 -->
+  <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--line);">
+    <button class="top-tab-btn active" id="payTab1" onclick="switchPayTab('schedule')" style="color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 18px;font-size:13px;">📋 일정 관리</button>
+    <button class="top-tab-btn" id="payTab2" onclick="switchPayTab('sms')" style="padding:8px 18px;font-size:13px;">💰 입금 문자</button>
+  </div>
+
+  <!-- 일정 관리 -->
+  <div id="paySchedulePanel">
+    <!-- 일정 등록 폼 -->
+    <div class="form-box" style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:11px;">➕ 일정 등록 (수동)</div>
+      <div class="fg" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:9px;">
+        <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="sch_biz" placeholder="홍길동 마트"></div>
+        <div class="fg-group"><label class="flabel">대표자</label><input class="fginput" id="sch_owner" placeholder="홍길동"></div>
+        <div class="fg-group"><label class="flabel">작업내용/기종</label><input class="fginput" id="sch_work" placeholder="POS 설치, CCTV 등"></div>
+        <div class="fg-group"><label class="flabel">합계금액</label><input class="fginput" id="sch_total" type="number" placeholder="0" min="0"></div>
+        <div class="fg-group"><label class="flabel">메모</label><input class="fginput" id="sch_memo" placeholder="특이사항"></div>
+        <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-navy" onclick="saveSchedule()" style="width:100%;">💾 등록</button></div>
+      </div>
+    </div>
+
+    <!-- 일정 목록 -->
+    <div id="scheduleList"><div class="empty">등록된 일정이 없습니다.</div></div>
+  </div>
+
+  <!-- 입금 문자 -->
+  <div id="paySmsPanel" style="display:none;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <span style="font-size:13px;font-weight:700;color:var(--navy);">국민은행 입금 문자 자동 수신</span>
+      <span id="payTodayBadge" style="font-size:11px;font-weight:700;padding:2px 8px;background:rgba(22,163,74,.12);color:var(--green);border-radius:20px;"></span>
+      <div style="margin-left:auto;"><button class="btn btn-outline btn-sm" onclick="clearOldPayments()">🗑 처리완료 삭제</button></div>
+    </div>
+    <div id="paymentList"><div class="empty">입금 내역이 없습니다.<br><span style="font-size:12px;">국민은행 1644-9999 문자가 오면 자동으로 표시됩니다.</span></div></div>
+  </div>
+
+</div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -371,7 +436,7 @@ firebase.initializeApp({
   appId:"1:1003933998008:web:cfd41be7aa36fada564d4d"
 });
 const db=firebase.database();
-let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],toastTimer=null,editingKbId=null;
+let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],toastTimer=null;
 
 // ── URL 파라미터 체크: 기사 뷰 ──
 const urlParams=new URLSearchParams(location.search);
@@ -447,48 +512,15 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function hl(text,kw){if(!kw)return esc(text);const e=esc(text),ek=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return e.replace(new RegExp(ek,'gi'),m=>`<span class="hl">${m}</span>`);}
 
 // ── 문제해결 ──
-function closeKbForm(){
-  editingKbId=null;
-  document.getElementById('kbTitle').value='';
-  document.getElementById('kbBody').value='';
-  document.getElementById('kbFormTitle').textContent='✏️ 문제해결 메모 작성';
-  document.getElementById('kbSaveBtn').textContent='💾 저장';
-  document.getElementById('kbForm').style.display='none';
-}
-function toggleKbForm(){
-  const f=document.getElementById('kbForm');
-  const open=f.style.display==='block';
-  if(open){closeKbForm();return;}
-  editingKbId=null;
-  document.getElementById('kbFormTitle').textContent='✏️ 문제해결 메모 작성';
-  document.getElementById('kbSaveBtn').textContent='💾 저장';
-  f.style.display='block';
-  document.getElementById('kbTitle').focus();
-}
+function toggleKbForm(){const f=document.getElementById('kbForm');const open=f.style.display==='block';f.style.display=open?'none':'block';if(!open)document.getElementById('kbTitle').focus();}
 async function saveKb(){
   const title=document.getElementById('kbTitle').value.trim();
   const body=document.getElementById('kbBody').value.trim();
   if(!title){showToast('⚠️ 제목을 입력하세요');return;}
   if(!body){showToast('⚠️ 내용을 입력하세요');return;}
-  if(editingKbId){
-    try{await db.ref('knowledge/'+editingKbId).update({title,body,updatedAt:Date.now()});closeKbForm();showToast('✅ 수정 완료');}
-    catch(e){showToast('❌ 수정 실패: '+e.message);}
-    return;
-  }
   const data={id:'KB'+Date.now(),title,body,createdAt:Date.now()};
-  try{await db.ref('knowledge/'+data.id).set(data);closeKbForm();showToast('✅ 저장 완료');}
+  try{await db.ref('knowledge/'+data.id).set(data);document.getElementById('kbTitle').value='';document.getElementById('kbBody').value='';document.getElementById('kbForm').style.display='none';showToast('✅ 저장 완료');}
   catch(e){showToast('❌ 저장 실패: '+e.message);}
-}
-function editKb(id){
-  const item=kbItems.find(k=>k.id===id);
-  if(!item){showToast('⚠️ 수정할 글을 찾을 수 없습니다');return;}
-  editingKbId=id;
-  document.getElementById('kbTitle').value=item.title||'';
-  document.getElementById('kbBody').value=item.body||'';
-  document.getElementById('kbFormTitle').textContent='✏️ 문제해결 메모 수정';
-  document.getElementById('kbSaveBtn').textContent='💾 수정 저장';
-  document.getElementById('kbForm').style.display='block';
-  document.getElementById('kbTitle').focus();
 }
 async function deleteKb(id){if(!confirm('삭제할까요?'))return;await db.ref('knowledge/'+id).remove();showToast('🗑 삭제됨');}
 function renderKb(){
@@ -497,7 +529,7 @@ function renderKb(){
   let filtered=[...kbItems].filter(k=>!kw||(k.title.toLowerCase().includes(kw)||k.body.toLowerCase().includes(kw)));
   filtered.sort((a,b)=>b.createdAt-a.createdAt);
   if(!filtered.length){list.innerHTML=`<div class="empty">${kw?'"'+kw+'" 검색 결과 없음':'저장된 메모가 없습니다.'}</div>`;return;}
-  list.innerHTML=filtered.map(k=>`<div class="kb-item"><div class="kb-head"><div class="kb-title">${hl(k.title,kw)}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0;"><span class="kb-date">${new Date(k.createdAt).toLocaleDateString('ko-KR')}</span><button class="btn btn-outline btn-sm" onclick="editKb('${k.id}')">수정</button><button class="btn btn-red btn-sm" onclick="deleteKb('${k.id}')">🗑</button></div></div><div class="kb-body">${hl(k.body,kw)}</div></div>`).join('');
+  list.innerHTML=filtered.map(k=>`<div class="kb-item"><div class="kb-head"><div class="kb-title">${hl(k.title,kw)}</div><div style="display:flex;align-items:center;gap:7px;flex-shrink:0;"><span class="kb-date">${new Date(k.createdAt).toLocaleDateString('ko-KR')}</span><button class="btn btn-red btn-sm" onclick="deleteKb('${k.id}')">🗑</button></div></div><div class="kb-body">${hl(k.body,kw)}</div></div>`).join('');
 }
 db.ref('knowledge').on('value',snap=>{const d=snap.val();kbItems=d?Object.values(d):[];renderKb();});
 
@@ -806,6 +838,290 @@ async function saveReship(){
 document.getElementById('reshipModal').addEventListener('click',function(e){if(e.target===this)closeReshipModal();});
 
 db.ref('parcels').on('value',snap=>{const d=snap.val();parcelItems=d?Object.values(d):[];renderParcels();});
+
+// ── 서브탭 전환 ──
+function switchPayTab(name){
+  document.getElementById('paySchedulePanel').style.display=name==='schedule'?'block':'none';
+  document.getElementById('paySmsPanel').style.display=name==='sms'?'block':'none';
+  document.getElementById('payTab1').className='top-tab-btn'+(name==='schedule'?' active':'');
+  document.getElementById('payTab2').className='top-tab-btn'+(name==='sms'?' active':'');
+  if(name==='schedule'){
+    document.getElementById('payTab1').style.cssText='color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 18px;font-size:13px;';
+    document.getElementById('payTab2').style.cssText='padding:8px 18px;font-size:13px;color:rgba(255,255,255,.5);border-bottom:none;';
+  } else {
+    document.getElementById('payTab2').style.cssText='color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 18px;font-size:13px;';
+    document.getElementById('payTab1').style.cssText='padding:8px 18px;font-size:13px;color:rgba(255,255,255,.5);border-bottom:none;';
+  }
+}
+
+// ── 일정 관리 ──
+let scheduleItems=[], smsItems=[];
+
+async function saveSchedule(){
+  const biz=document.getElementById('sch_biz').value.trim();
+  if(!biz){showToast('⚠️ 상호명을 입력하세요');return;}
+  const data={
+    id:'SCH'+Date.now(),
+    bizName:biz,
+    owner:document.getElementById('sch_owner').value.trim(),
+    work:document.getElementById('sch_work').value.trim(),
+    total:Number(document.getElementById('sch_total').value)||0,
+    memo:document.getElementById('sch_memo').value.trim(),
+    deposit:0,depositPaid:false,
+    mid:0,midPaid:false,
+    final:0,finalPaid:false,
+    complete:false,
+    linkedSms:[],
+    source:'manual',
+    createdAt:Date.now()
+  };
+  try{
+    await db.ref('schedules/'+data.id).set(data);
+    ['sch_biz','sch_owner','sch_work','sch_total','sch_memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    showToast('✅ 일정 등록 완료');
+  }catch(e){showToast('❌ 저장 실패: '+e.message);}
+}
+
+async function updateStage(id,field,val){
+  await db.ref('schedules/'+id).update({[field]:val});
+}
+
+async function markStagePaid(id,stage){
+  const updates={};
+  updates[stage+'Paid']=true;
+  // 완납 처리
+  const sch=scheduleItems.find(s=>s.id===id);
+  if(sch){
+    const isComplete=(stage==='final')||
+      (stage==='deposit'&&!sch.mid&&!sch.final)||
+      (stage==='mid'&&!sch.final);
+    if(stage==='final'||(!sch.mid&&!sch.final&&stage==='deposit'&&sch.deposit)){
+      // 완납 여부 체크
+    }
+    if(stage==='final'||(sch.deposit&&sch.depositPaid&&!sch.mid&&!sch.final&&stage==='deposit')){
+      updates.complete=stage==='final'?true:false;
+    }
+    if(stage==='final') updates.complete=true;
+  }
+  await db.ref('schedules/'+id).update(updates);
+  showToast('✅ 입금 처리됨');
+}
+
+async function deleteSchedule(id){
+  if(!confirm('삭제할까요?'))return;
+  await db.ref('schedules/'+id).remove();
+  showToast('🗑 삭제됨');
+}
+
+async function editSchedule(id){
+  const s=scheduleItems.find(x=>x.id===id);if(!s)return;
+  document.getElementById('sch_biz').value=s.bizName||'';
+  document.getElementById('sch_owner').value=s.owner||'';
+  document.getElementById('sch_work').value=s.work||'';
+  document.getElementById('sch_total').value=s.total||'';
+  document.getElementById('sch_memo').value=s.memo||'';
+  await db.ref('schedules/'+id).remove();
+  switchPayTab('schedule');
+  document.getElementById('sch_biz').focus();
+  showToast('수정 후 다시 등록하세요');
+}
+
+async function linkSmsToSchedule(schId,smsId){
+  const sch=scheduleItems.find(s=>s.id===schId);
+  const sms=smsItems.find(s=>s._id===smsId);
+  if(!sch||!sms)return;
+  const linked=[...(sch.linkedSms||[])];
+  if(linked.includes(smsId)){showToast('이미 연결됨');return;}
+  linked.push(smsId);
+  // 금액 파싱해서 단계 자동 설정
+  const amtMatch=(sms.message||'').match(/([0-9,]+)\s*$/m);
+  const amt=amtMatch?Number(amtMatch[1].replace(/,/g,'')):0;
+  const updates={linkedSms:linked};
+  if(!sch.depositPaid&&!sch.deposit){updates.deposit=amt;updates.depositPaid=true;}
+  else if(!sch.midPaid&&!sch.mid){updates.mid=amt;updates.midPaid=true;}
+  else if(!sch.finalPaid){updates.final=amt;updates.finalPaid=true;updates.complete=true;}
+  await db.ref('schedules/'+schId).update(updates);
+  await db.ref('sms_inbox/'+smsId).update({linked:true,linkedTo:schId});
+  showToast('✅ 입금 문자 연결 완료');
+}
+
+function renderSchedules(){
+  const list=document.getElementById('scheduleList');
+  if(!scheduleItems.length){list.innerHTML='<div class="empty">등록된 일정이 없습니다.</div>';return;}
+  const sorted=[...scheduleItems].sort((a,b)=>b.createdAt-a.createdAt);
+  list.innerHTML=sorted.map(s=>{
+    const unlinkedSms=smsItems.filter(sm=>!sm.linked);
+    const smsOptions=unlinkedSms.length?`<select class="fginput btn-sm" style="width:auto;font-size:12px;" onchange="linkSmsToSchedule('${s.id}',this.value);this.value=''">
+      <option value="">💰 입금문자 연결...</option>
+      ${unlinkedSms.map(sm=>{
+        const amt=(sm.message||'').match(/([0-9,]+)\s*$/m);
+        const nm=(sm.message||'').match(/^([가-힣a-zA-Z]+)$/m);
+        return `<option value="${sm._id}">${nm?nm[0]:'?'} ${amt?amt[1]+'원':''}</option>`;
+      }).join('')}
+    </select>`:'';
+    return `<div class="sch-card ${s.complete?'complete':''}">
+      <div class="sch-head">
+        <div style="flex:1;">
+          <div class="sch-title">${esc(s.bizName)} ${s.owner?'· '+esc(s.owner):''} ${s.source==='contract'?'<span style="font-size:10px;padding:2px 6px;background:rgba(37,99,235,.1);color:var(--blue);border-radius:5px;font-weight:700;">전자계약</span>':''}</div>
+          <div class="sch-sub">${esc(s.work||'')} ${s.total?'· 합계 '+s.total.toLocaleString()+'원':''} ${s.memo?'· '+esc(s.memo):''}</div>
+        </div>
+        ${s.complete?'<span style="font-size:13px;font-weight:900;color:var(--green);">✅ 입금완료</span>':''}
+        <div style="display:flex;gap:5px;flex-shrink:0;">
+          <button class="btn btn-outline btn-sm" onclick="editSchedule('${s.id}')">✏️</button>
+          <button class="btn btn-red btn-sm" onclick="deleteSchedule('${s.id}')">🗑</button>
+        </div>
+      </div>
+      <!-- 입금 단계 -->
+      <div class="pay-stage">
+        <div class="stage-item ${s.depositPaid?'paid':''}">
+          <div class="stage-label">계약금</div>
+          <input class="pay-input" type="number" placeholder="금액" value="${s.deposit||''}" style="margin-bottom:4px;" onchange="updateStage('${s.id}','deposit',Number(this.value))">
+          ${s.depositPaid
+            ?'<div class="stage-paid">✅ 입금완료</div>'
+            :`<button class="btn btn-green btn-sm" onclick="markStagePaid('${s.id}','deposit')" style="width:100%;margin-top:4px;">입금확인</button>`}
+        </div>
+        <div class="stage-item ${s.midPaid?'paid':''}">
+          <div class="stage-label">중도금</div>
+          <input class="pay-input" type="number" placeholder="금액(없으면 비워두세요)" value="${s.mid||''}" style="margin-bottom:4px;" onchange="updateStage('${s.id}','mid',Number(this.value))">
+          ${s.midPaid
+            ?'<div class="stage-paid">✅ 입금완료</div>'
+            :`<button class="btn btn-outline btn-sm" onclick="markStagePaid('${s.id}','mid')" style="width:100%;margin-top:4px;">입금확인</button>`}
+        </div>
+        <div class="stage-item ${s.finalPaid?'paid':''}">
+          <div class="stage-label">완납</div>
+          <input class="pay-input" type="number" placeholder="금액" value="${s.final||''}" style="margin-bottom:4px;" onchange="updateStage('${s.id}','final',Number(this.value))">
+          ${s.finalPaid
+            ?'<div class="stage-paid">✅ 완납</div>'
+            :`<button class="btn btn-navy btn-sm" onclick="markStagePaid('${s.id}','final')" style="width:100%;margin-top:4px;">완납 확인</button>`}
+        </div>
+      </div>
+      ${smsOptions?`<div style="margin-top:6px;">${smsOptions}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// 전자계약서 연동
+db.ref('https://daesang-contract-default-rtdb.asia-southeast1.firebasedatabase.app/contracts').on('value',snap=>{
+  // 별도 Firebase 프로젝트라 직접 연동 어려움 - 대신 daesang-as의 contract_sync 경로 사용
+}).catch(()=>{});
+
+// daesang-as Firebase에 계약서 동기화 데이터 수신
+db.ref('contract_sync').on('value',snap=>{
+  const d=snap.val();
+  if(!d)return;
+  const contracts=Object.values(d).filter(c=>!c.synced);
+  contracts.forEach(async c=>{
+    // 이미 등록된 일정인지 확인
+    const exists=scheduleItems.find(s=>s.contractId===c.id);
+    if(exists)return;
+    // 새 일정 자동 등록
+    const data={
+      id:'SCH'+Date.now()+Math.random().toString(36).slice(2),
+      contractId:c.id,
+      bizName:c.customer?.company||'',
+      owner:c.customer?.owner||'',
+      work:(c.products||[]).map(p=>p.name).join(', '),
+      total:c.totalAmount||0,
+      memo:'전자계약서 자동 연동',
+      deposit:0,depositPaid:false,
+      mid:0,midPaid:false,
+      final:0,finalPaid:false,
+      complete:false,
+      linkedSms:[],
+      source:'contract',
+      createdAt:Date.now()
+    };
+    await db.ref('schedules/'+data.id).set(data);
+    await db.ref('contract_sync/'+c.id).update({synced:true});
+  });
+});
+
+db.ref('schedules').on('value',snap=>{
+  const d=snap.val();
+  scheduleItems=d?Object.values(d):[];
+  renderSchedules();
+});
+
+// ── 입금확인 ──
+db.ref('sms_inbox').on('value',snap=>{
+  const d=snap.val();
+  const rawItems=d?Object.entries(d).map(([k,v])=>({...v,_id:k})):[];
+  const items=rawItems;
+  smsItems=items; // 전역 저장
+  // 국민은행 문자만 필터 (16449999)
+  const payments=items.filter(s=>(s.from||'').replace(/-/g,'').includes('16449999')||(s.message||'').includes('[KB]'));
+  payments.sort((a,b)=>(b.receivedAt||b.createdAt||0)-(a.receivedAt||a.createdAt||0));
+  renderPayments(payments);
+});
+
+function renderPayments(payments){
+  const list=document.getElementById('paymentList');
+  const badge=document.getElementById('payTodayBadge');
+  if(!list)return;
+  if(!payments.length){
+    list.innerHTML='<div class="empty">입금 내역이 없습니다.<br><span style="font-size:12px;">국민은행 1644-9999 문자가 오면 자동으로 표시됩니다.</span></div>';
+    if(badge)badge.textContent='';return;
+  }
+  const today=new Date().toISOString().split('T')[0];
+  const todayCnt=payments.filter(p=>{
+    const d=new Date((p.receivedAt||p.createdAt||Date.now())).toISOString().split('T')[0];
+    return d===today;
+  }).length;
+  if(badge)badge.textContent=todayCnt>0?`오늘 ${todayCnt}건`:'';
+
+  list.innerHTML=payments.map(p=>{
+    // 문자 파싱 [KB]05/08 13:49 / 125002**174 / 황혜령 / 입금 / 100,000
+    const msg=p.message||'';
+    const amtMatch=msg.match(/([0-9,]+)\s*$/m);
+    const nameMatch=msg.match(/^([가-힣a-zA-Z]+)$/m);
+    const timeMatch=msg.match(/\d{2}\/\d{2}\s+\d{2}:\d{2}/);
+    const amount=amtMatch?amtMatch[1]:'';
+    const sender=nameMatch?nameMatch[0]:'';
+    const time=timeMatch?timeMatch[0]:'';
+    const isDone=p.done||false;
+    const id=p.id||Object.keys(p)[0]||'';
+    return `<div class="pay-item ${isDone?'done':'pending'}" id="pay-${p._id||Date.now()}">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+          <div class="pay-amount">${amount?amount+'원':'금액 확인 필요'}</div>
+          <div class="pay-name">${sender||'입금자'} ${time?'· '+time:''}</div>
+          <div class="pay-time" style="white-space:pre-wrap;margin-top:4px;font-size:11px;color:var(--muted);">${esc(msg)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;">
+          ${isDone
+            ?'<span style="font-size:12px;font-weight:700;color:var(--green);">✅ 처리완료</span>'
+            :`<button class="btn btn-green btn-sm" onclick="markPayDone('${p._id}')">✅ 완료</button>`
+          }
+        </div>
+      </div>
+      <div class="pay-meta">
+        <input class="pay-input" placeholder="상호명" value="${esc(p.bizName||'')}" onchange="updatePayMeta('${p._id}','bizName',this.value)">
+        <input class="pay-input" placeholder="기종" value="${esc(p.model||'')}" onchange="updatePayMeta('${p._id}','model',this.value)">
+        <input class="pay-input" placeholder="특이사항" value="${esc(p.memo||'')}" onchange="updatePayMeta('${p._id}','memo',this.value)">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function markPayDone(id){
+  if(!id)return;
+  await db.ref('sms_inbox/'+id).update({done:true});
+  showToast('✅ 처리완료 표시됨');
+}
+async function updatePayMeta(id,field,val){
+  if(!id)return;
+  await db.ref('sms_inbox/'+id).update({[field]:val});
+}
+async function clearOldPayments(){
+  if(!confirm('처리완료된 항목을 삭제할까요?'))return;
+  const snap=await db.ref('sms_inbox').once('value');
+  const d=snap.val();if(!d)return;
+  let cnt=0;
+  for(const[k,v]of Object.entries(d)){
+    if(v.done){await db.ref('sms_inbox/'+k).remove();cnt++;}
+  }
+  showToast(`🗑 ${cnt}개 삭제됨`);
+}
 </script>
 </body>
 </html>
