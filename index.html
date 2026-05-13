@@ -127,6 +127,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .pay-input{border:1.5px solid var(--line);border-radius:7px;padding:6px 10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;background:var(--bg);color:#1a2744;flex:1;min-width:120px;}
 .pay-input:focus{border-color:var(--gold);background:#fff;}
 .sch-card{background:var(--panel);border:1.5px solid var(--line);border-radius:11px;padding:16px;margin-bottom:12px;}
+@keyframes bounce{0%,100%{transform:translateY(0);}25%{transform:translateY(-8px);}50%{transform:translateY(-4px);}75%{transform:translateY(-6px);}}
+.complete-bounce{animation:bounce .6s ease infinite;display:inline-block;}
+.complete-text{background:linear-gradient(90deg,#16a34a,#2563eb,#c8922a,#ec4899,#16a34a);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientMove 2s linear infinite;font-weight:900;font-size:15px;}
+@keyframes gradientMove{0%{background-position:0%;}100%{background-position:300%;}}
 .sch-card.complete{border-color:var(--green);background:#f0fff4;}
 .sch-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
 .sch-title{font-size:15px;font-weight:900;color:var(--navy);flex:1;}
@@ -386,8 +390,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 
   <!-- 서브탭 -->
   <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--line);">
-    <button class="top-tab-btn active" id="payTab1" onclick="switchPayTab('schedule')" style="color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 18px;font-size:13px;">📋 일정 관리</button>
-    <button class="top-tab-btn" id="payTab2" onclick="switchPayTab('sms')" style="padding:8px 18px;font-size:13px;">💰 입금 문자</button>
+    <button id="payTab1" onclick="switchPayTab('schedule')" style="padding:10px 20px;font-size:13px;font-weight:700;border:none;background:transparent;cursor:pointer;color:var(--navy);border-bottom:3px solid var(--navy);">📋 일정 관리</button>
+    <button id="payTab2" onclick="switchPayTab('sms')" style="padding:10px 20px;font-size:13px;font-weight:700;border:none;background:transparent;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;">💰 입금 문자</button>
   </div>
 
   <!-- 일정 관리 -->
@@ -843,15 +847,12 @@ db.ref('parcels').on('value',snap=>{const d=snap.val();parcelItems=d?Object.valu
 function switchPayTab(name){
   document.getElementById('paySchedulePanel').style.display=name==='schedule'?'block':'none';
   document.getElementById('paySmsPanel').style.display=name==='sms'?'block':'none';
-  document.getElementById('payTab1').className='top-tab-btn'+(name==='schedule'?' active':'');
-  document.getElementById('payTab2').className='top-tab-btn'+(name==='sms'?' active':'');
-  if(name==='schedule'){
-    document.getElementById('payTab1').style.cssText='color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 18px;font-size:13px;';
-    document.getElementById('payTab2').style.cssText='padding:8px 18px;font-size:13px;color:rgba(255,255,255,.5);border-bottom:none;';
-  } else {
-    document.getElementById('payTab2').style.cssText='color:var(--navy);border-bottom:2px solid var(--navy);padding:8px 18px;font-size:13px;';
-    document.getElementById('payTab1').style.cssText='padding:8px 18px;font-size:13px;color:rgba(255,255,255,.5);border-bottom:none;';
-  }
+  const t1=document.getElementById('payTab1');
+  const t2=document.getElementById('payTab2');
+  const activeStyle='padding:10px 20px;font-size:13px;font-weight:700;border:none;background:transparent;cursor:pointer;color:var(--navy);border-bottom:3px solid var(--navy);';
+  const inactiveStyle='padding:10px 20px;font-size:13px;font-weight:700;border:none;background:transparent;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;';
+  t1.style.cssText=name==='schedule'?activeStyle:inactiveStyle;
+  t2.style.cssText=name==='sms'?activeStyle:inactiveStyle;
 }
 
 // ── 일정 관리 ──
@@ -886,25 +887,42 @@ async function updateStage(id,field,val){
   await db.ref('schedules/'+id).update({[field]:val});
 }
 
-async function markStagePaid(id,stage){
-  const updates={};
-  updates[stage+'Paid']=true;
-  // 완납 처리
-  const sch=scheduleItems.find(s=>s.id===id);
-  if(sch){
-    const isComplete=(stage==='final')||
-      (stage==='deposit'&&!sch.mid&&!sch.final)||
-      (stage==='mid'&&!sch.final);
-    if(stage==='final'||(!sch.mid&&!sch.final&&stage==='deposit'&&sch.deposit)){
-      // 완납 여부 체크
-    }
-    if(stage==='final'||(sch.deposit&&sch.depositPaid&&!sch.mid&&!sch.final&&stage==='deposit')){
-      updates.complete=stage==='final'?true:false;
-    }
-    if(stage==='final') updates.complete=true;
-  }
+async function manualPay(id){
+  const sch=scheduleItems.find(s=>s.id===id);if(!sch)return;
+  const amt=prompt('수기 입금 금액 입력 (원)','');
+  if(amt===null)return;
+  const amount=Number(String(amt).replace(/,/g,''))||0;
+  if(!amount){showToast('⚠️ 금액을 입력하세요');return;}
+  let stage='final';
+  if(!sch.depositPaid)stage='deposit';
+  else if(!sch.midPaid&&sch.mid)stage='mid';
+  const afterDep2 = stage==='deposit'?true:sch.depositPaid;
+  const afterMid2 = stage==='mid'?true:sch.midPaid;
+  const noMid2=!sch.mid, noFin2=!sch.final&&stage!=='final';
+  const isComplete2=(stage==='final')||(afterDep2&&noMid2&&noFin2)||(afterDep2&&afterMid2&&noFin2);
+  const updates={[stage]:amount,[stage+'Paid']:true};
+  if(isComplete2)updates.complete=true;
   await db.ref('schedules/'+id).update(updates);
-  showToast('✅ 입금 처리됨');
+  showToast(isComplete2?'🎉 입금완료!':'✅ 수기 입금 처리됨');
+}
+
+async function markStagePaid(id,stage){
+  const sch=scheduleItems.find(s=>s.id===id);if(!sch)return;
+  const updates={[stage+'Paid']:true};
+  // 완납 자동 판단
+  const afterDeposit = stage==='deposit' ? true : sch.depositPaid;
+  const afterMid     = stage==='mid'     ? true : sch.midPaid;
+  const afterFinal   = stage==='final'   ? true : sch.finalPaid;
+  // 중도금/완납 없으면 계약금만 받아도 완료
+  const noMid   = !sch.mid;
+  const noFinal = !sch.final;
+  const isComplete =
+    afterFinal ||                          // 완납 처리됨
+    (afterDeposit && noMid && noFinal) ||  // 계약금만 있고 나머지 없음
+    (afterDeposit && afterMid && noFinal); // 중도금까지 받고 완납 없음
+  if(isComplete) updates.complete=true;
+  await db.ref('schedules/'+id).update(updates);
+  showToast(isComplete?'🎉 입금완료!':'✅ 입금 처리됨');
 }
 
 async function deleteSchedule(id){
@@ -965,7 +983,7 @@ function renderSchedules(){
           <div class="sch-title">${esc(s.bizName)} ${s.owner?'· '+esc(s.owner):''} ${s.source==='contract'?'<span style="font-size:10px;padding:2px 6px;background:rgba(37,99,235,.1);color:var(--blue);border-radius:5px;font-weight:700;">전자계약</span>':''}</div>
           <div class="sch-sub">${esc(s.work||'')} ${s.total?'· 합계 '+s.total.toLocaleString()+'원':''} ${s.memo?'· '+esc(s.memo):''}</div>
         </div>
-        ${s.complete?'<span style="font-size:13px;font-weight:900;color:var(--green);">✅ 입금완료</span>':''}
+        ${s.complete?'<span class="complete-bounce">✅</span> <span class="complete-text">입금완료!</span>':''}
         <div style="display:flex;gap:5px;flex-shrink:0;">
           <button class="btn btn-outline btn-sm" onclick="editSchedule('${s.id}')">✏️</button>
           <button class="btn btn-red btn-sm" onclick="deleteSchedule('${s.id}')">🗑</button>
@@ -992,10 +1010,12 @@ function renderSchedules(){
           <input class="pay-input" type="number" placeholder="금액" value="${s.final||''}" style="margin-bottom:4px;" onchange="updateStage('${s.id}','final',Number(this.value))">
           ${s.finalPaid
             ?'<div class="stage-paid">✅ 완납</div>'
-            :`<button class="btn btn-navy btn-sm" onclick="markStagePaid('${s.id}','final')" style="width:100%;margin-top:4px;">완납 확인</button>`}
+            :`<div style='display:flex;gap:4px;margin-top:4px;'><button class="btn btn-navy btn-sm" onclick="markStagePaid('${s.id}','final')" style='flex:1;'>완납확인</button><button class="btn btn-gold btn-sm" onclick="manualPay('${s.id}')" style='flex:1;'>수기입금</button></div>`}
         </div>
       </div>
-      ${smsOptions?`<div style="margin-top:6px;">${smsOptions}</div>`:''}
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        ${smsOptions?smsOptions:'<span style="font-size:12px;color:var(--muted);">💰 입금문자 탭에서 문자 수신 후 연결 가능</span>'}
+      </div>
     </div>`;
   }).join('');
 }
@@ -1040,6 +1060,7 @@ db.ref('schedules').on('value',snap=>{
   const d=snap.val();
   scheduleItems=d?Object.values(d):[];
   renderSchedules();
+  if(smsItems.length>0) autoMatchPayments(smsItems.filter(s=>!s.linked&&!s.done));
 });
 
 // ── 입금확인 ──
@@ -1048,11 +1069,45 @@ db.ref('sms_inbox').on('value',snap=>{
   const rawItems=d?Object.entries(d).map(([k,v])=>({...v,_id:k})):[];
   const items=rawItems;
   smsItems=items; // 전역 저장
+  if(scheduleItems.length>0) autoMatchPayments(items.filter(s=>!s.linked&&!s.done));
   // 국민은행 문자만 필터 (16449999)
   const payments=items.filter(s=>(s.from||'').replace(/-/g,'').includes('16449999')||(s.message||'').includes('[KB]'));
   payments.sort((a,b)=>(b.receivedAt||b.createdAt||0)-(a.receivedAt||a.createdAt||0));
   renderPayments(payments);
 });
+
+async function autoMatchPayments(payments){
+  for(const sms of payments){
+    if(sms.linked||sms.done)continue;
+    const msg=sms.message||'';
+    const nameMatch=msg.match(/^([가-힣]{2,5})$/m);
+    const amtMatch=msg.match(/([0-9,]+)\s*$/m);
+    if(!nameMatch||!amtMatch)continue;
+    const smsName=nameMatch[1].trim();
+    const smsAmt=Number(amtMatch[1].replace(/,/g,''));
+    for(const sch of scheduleItems){
+      if(sch.complete)continue;
+      const owner=(sch.owner||'').trim();
+      if(!owner||owner!==smsName)continue;
+      let stage='',matched=false;
+      if(!sch.depositPaid&&sch.deposit&&sch.deposit===smsAmt){stage='deposit';matched=true;}
+      else if(!sch.midPaid&&sch.mid&&sch.mid===smsAmt){stage='mid';matched=true;}
+      else if(!sch.finalPaid&&sch.final&&sch.final===smsAmt){stage='final';matched=true;}
+      if(matched&&stage){
+        const afterDep = stage==='deposit'?true:sch.depositPaid;
+        const afterMid = stage==='mid'?true:sch.midPaid;
+        const afterFin = stage==='final'?true:sch.finalPaid;
+        const noMid=!sch.mid, noFin=!sch.final;
+        const isComplete=afterFin||(afterDep&&noMid&&noFin)||(afterDep&&afterMid&&noFin);
+        const updates={[stage+'Paid']:true,linkedSms:[...(sch.linkedSms||[]),sms._id]};
+        if(isComplete)updates.complete=true;
+        await db.ref('schedules/'+sch.id).update(updates);
+        await db.ref('sms_inbox/'+sms._id).update({linked:true,linkedTo:sch.id,autoMatched:true});
+        showToast(isComplete?'🎉 자동완납: '+owner:'✅ 자동매칭: '+owner+' '+smsAmt.toLocaleString()+'원');
+      }
+    }
+  }
+}
 
 function renderPayments(payments){
   const list=document.getElementById('paymentList');
