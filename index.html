@@ -1020,13 +1020,6 @@ function renderSchedules(){
   }).join('');
 }
 
-// 전자계약서 연동
-try{
-  db.ref('https://daesang-contract-default-rtdb.asia-southeast1.firebasedatabase.app/contracts').on('value',snap=>{
-    // 별도 Firebase 프로젝트라 직접 연동 어려움 - 대신 daesang-as의 contract_sync 경로 사용
-  });
-}catch(e){}
-
 // daesang-as Firebase에 계약서 동기화 데이터 수신
 db.ref('contract_sync').on('value',snap=>{
   const d=snap.val();
