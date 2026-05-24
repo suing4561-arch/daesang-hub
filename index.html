@@ -703,11 +703,10 @@ function copyDriverLink(){
   const ids=checked.map(p=>p.id).join(',');
   const baseUrl=location.origin+location.pathname;
   const link=`${baseUrl}?driver=${driverId}&ids=${ids}`;
-  const text=['택배 배송 링크',link,''].concat(checked.map((p,i)=>parcelCopyBlock(p,i))).join('\n');
-  navigator.clipboard.writeText(text).then(()=>{
-    showToast('✅ 링크와 전화번호 포함 목록 복사됨!');
+  navigator.clipboard.writeText(link).then(()=>{
+    showToast('✅ 링크 복사됨! 기사에게 전송하세요.');
   }).catch(()=>{
-    prompt('아래 링크와 목록을 복사하세요:',text);
+    prompt('아래 링크를 복사하세요:',link);
   });
 }
 function updateParcelTabLabel(){
