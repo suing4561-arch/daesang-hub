@@ -85,6 +85,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
 .driver-item.editing{border-color:var(--gold);background:#fffbf4;}
 .driver-name{font-weight:700;font-size:14px;flex:1;}
 .driver-bank{font-size:12px;color:var(--muted);}
+.preset-form{background:var(--bg);border-radius:9px;padding:12px;border:1px solid var(--line);}
+.preset-actions{display:flex;gap:6px;flex-wrap:wrap;}
 
 /* 택배 목록 */
 .parcel-list{display:flex;flex-direction:column;gap:8px;}
@@ -298,11 +300,51 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
     </div>
   </div>
 
+  <!-- 보낼곳 관리 (접기/펼치기) -->
+  <div class="driver-box">
+    <div class="driver-head" onclick="toggleParcelCustomerBox()">
+      <div class="driver-head-title">🏪 보낼곳 관리 <span id="parcelCustomerCount" style="font-size:11px;color:var(--muted);font-weight:400;"></span></div>
+      <span id="parcelCustomerArrow" style="color:var(--muted);">▼</span>
+    </div>
+    <div class="driver-body" id="parcelCustomerBody" style="display:none;">
+      <div class="driver-list" id="parcelCustomerList"></div>
+      <div class="preset-form">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">보낼곳 등록</div>
+        <div class="fg" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
+          <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="pcName" placeholder="홍길동 마트"></div>
+          <div class="fg-group"><label class="flabel">전화번호</label><input class="fginput" id="pcTel" placeholder="010-0000-0000"></div>
+          <div class="fg-group" style="grid-column:span 2;"><label class="flabel">주소 *</label><input class="fginput" id="pcAddr" placeholder="부산시 남구 ..."></div>
+          <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-navy btn-sm" id="pcSaveBtn" onclick="saveParcelCustomer()" style="width:100%;padding:8px;">보낼곳 등록</button></div>
+          <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-outline btn-sm" onclick="cancelParcelCustomerEdit()" style="width:100%;padding:8px;">취소</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기종 관리 (접기/펼치기) -->
+  <div class="driver-box">
+    <div class="driver-head" onclick="toggleParcelModelBox()">
+      <div class="driver-head-title">📦 기종 관리 <span id="parcelModelCount" style="font-size:11px;color:var(--muted);font-weight:400;"></span></div>
+      <span id="parcelModelArrow" style="color:var(--muted);">▼</span>
+    </div>
+    <div class="driver-body" id="parcelModelBody" style="display:none;">
+      <div class="driver-list" id="parcelModelList"></div>
+      <div class="preset-form">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">기종 등록</div>
+        <div class="fg" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
+          <div class="fg-group" style="grid-column:span 2;"><label class="flabel">기종 *</label><input class="fginput" id="pmName" placeholder="POS / CCTV / 카드단말기 등"></div>
+          <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-navy btn-sm" id="pmSaveBtn" onclick="saveParcelModel()" style="width:100%;padding:8px;">기종 등록</button></div>
+          <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-outline btn-sm" onclick="cancelParcelModelEdit()" style="width:100%;padding:8px;">취소</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 택배 등록 폼 -->
   <div class="form-box">
     <div class="form-box-title" style="cursor:default;">📦 택배 등록</div>
     <div class="fg">
-      <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="pName" placeholder="홍길동 마트"></div>
+      <div class="fg-group"><label class="flabel">상호명 *</label><input class="fginput" id="pName" placeholder="홍길동 마트" list="parcelCustomerDatalist" onclick="openParcelCustomerPicker()" oninput="applyParcelCustomerByName(this.value)"><datalist id="parcelCustomerDatalist"></datalist></div>
       <div class="fg-group"><label class="flabel">전화번호</label><input class="fginput" id="pTel" placeholder="010-0000-0000"></div>
       <div class="fg-group" style="grid-column:span 2;"><label class="flabel">주소 *</label><input class="fginput" id="pAddr" placeholder="부산시 남구 ..."></div>
       <div class="fg-group"><label class="flabel">택배기사</label>
@@ -320,7 +362,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh
           </label>
         </div>
       </div>
-      <div class="fg-group"><label class="flabel">기종</label><input class="fginput" id="pModel" placeholder="POS / CCTV / 카드단말기 등"></div>
+      <div class="fg-group"><label class="flabel">기종</label><input class="fginput" id="pModel" placeholder="POS / CCTV / 카드단말기 등" list="parcelModelDatalist" onclick="openParcelModelPicker()" oninput="applyParcelModelByName(this.value)"><datalist id="parcelModelDatalist"></datalist></div>
       <div class="fg-group"><label class="flabel">메모</label><input class="fginput" id="pMemo" placeholder="특이사항"></div>
       <div class="fg-group"><label class="flabel">&nbsp;</label><button class="btn btn-navy" onclick="saveParcel()" style="width:100%;">📦 등록</button></div>
     </div>
@@ -443,7 +485,8 @@ firebase.initializeApp({
   appId:"1:1003933998008:web:cfd41be7aa36fada564d4d"
 });
 const db=firebase.database();
-let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],toastTimer=null;
+let kbItems=[],cmsItems=[],driverItems=[],parcelItems=[],parcelCustomerItems=[],parcelModelItems=[],toastTimer=null;
+let editingParcelCustomerId=null, editingParcelModelId=null;
 
 // ── URL 파라미터 체크: 기사 뷰 ──
 const urlParams=new URLSearchParams(location.search);
@@ -599,6 +642,148 @@ function renderDrivers(){
   </div>`).join('');
 }
 db.ref('drivers').on('value',snap=>{const d=snap.val();driverItems=d?Object.values(d):[];renderDrivers();});
+
+// ── 보낼곳 / 기종 사전등록 ──
+function toggleParcelCustomerBox(){
+  const body=document.getElementById('parcelCustomerBody');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  document.getElementById('parcelCustomerArrow').textContent=open?'▼':'▲';
+}
+function toggleParcelModelBox(){
+  const body=document.getElementById('parcelModelBody');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  document.getElementById('parcelModelArrow').textContent=open?'▼':'▲';
+}
+function openParcelCustomerPicker(){
+  const el=document.getElementById('pName');
+  if(el?.showPicker) setTimeout(()=>{try{el.showPicker();}catch(e){}},0);
+}
+function openParcelModelPicker(){
+  const el=document.getElementById('pModel');
+  if(el?.showPicker) setTimeout(()=>{try{el.showPicker();}catch(e){}},0);
+}
+function applyParcelCustomerByName(name){
+  const customer=parcelCustomerItems.find(c=>(c.name||'')===name);
+  if(!customer)return;
+  document.getElementById('pTel').value=customer.tel||'';
+  document.getElementById('pAddr').value=customer.addr||'';
+}
+function applyParcelModelByName(name){
+  const model=parcelModelItems.find(m=>(m.name||'')===name);
+  if(model) document.getElementById('pModel').value=model.name||'';
+}
+function clearParcelCustomerForm(){
+  editingParcelCustomerId=null;
+  ['pcName','pcTel','pcAddr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const btn=document.getElementById('pcSaveBtn');
+  if(btn) btn.textContent='보낼곳 등록';
+}
+function clearParcelModelForm(){
+  editingParcelModelId=null;
+  const el=document.getElementById('pmName');
+  if(el) el.value='';
+  const btn=document.getElementById('pmSaveBtn');
+  if(btn) btn.textContent='기종 등록';
+}
+function cancelParcelCustomerEdit(){clearParcelCustomerForm();renderParcelCustomers();}
+function cancelParcelModelEdit(){clearParcelModelForm();renderParcelModels();}
+async function saveParcelCustomer(){
+  const name=document.getElementById('pcName').value.trim();
+  const addr=document.getElementById('pcAddr').value.trim();
+  if(!name){showToast('⚠️ 상호명을 입력하세요');return;}
+  if(!addr){showToast('⚠️ 주소를 입력하세요');return;}
+  const prev=editingParcelCustomerId?parcelCustomerItems.find(c=>c.id===editingParcelCustomerId):null;
+  const isEdit=!!editingParcelCustomerId;
+  const id=editingParcelCustomerId||'PCT'+Date.now();
+  const data={id,name,tel:document.getElementById('pcTel').value.trim(),addr,createdAt:prev?.createdAt||Date.now()};
+  try{
+    await db.ref('settings/parcelCustomers/'+data.id).set(data);
+    clearParcelCustomerForm();
+    showToast(isEdit?'✅ 보낼곳 수정 완료':'✅ 보낼곳 등록 완료');
+  }catch(e){showToast('❌ 저장 실패: '+e.message);}
+}
+function editParcelCustomer(id){
+  const c=parcelCustomerItems.find(x=>x.id===id);
+  if(!c)return;
+  editingParcelCustomerId=id;
+  document.getElementById('pcName').value=c.name||'';
+  document.getElementById('pcTel').value=c.tel||'';
+  document.getElementById('pcAddr').value=c.addr||'';
+  const btn=document.getElementById('pcSaveBtn');
+  if(btn) btn.textContent='보낼곳 수정';
+  renderParcelCustomers();
+}
+async function deleteParcelCustomer(id){
+  if(!confirm('보낼곳을 삭제할까요?'))return;
+  await db.ref('settings/parcelCustomers/'+id).remove();
+  showToast('🗑 삭제됨');
+}
+async function saveParcelModel(){
+  const name=document.getElementById('pmName').value.trim();
+  if(!name){showToast('⚠️ 기종을 입력하세요');return;}
+  const prev=editingParcelModelId?parcelModelItems.find(m=>m.id===editingParcelModelId):null;
+  const isEdit=!!editingParcelModelId;
+  const id=editingParcelModelId||'PMD'+Date.now();
+  const data={id,name,createdAt:prev?.createdAt||Date.now()};
+  try{
+    await db.ref('settings/parcelModels/'+data.id).set(data);
+    clearParcelModelForm();
+    showToast(isEdit?'✅ 기종 수정 완료':'✅ 기종 등록 완료');
+  }catch(e){showToast('❌ 저장 실패: '+e.message);}
+}
+function editParcelModel(id){
+  const m=parcelModelItems.find(x=>x.id===id);
+  if(!m)return;
+  editingParcelModelId=id;
+  document.getElementById('pmName').value=m.name||'';
+  const btn=document.getElementById('pmSaveBtn');
+  if(btn) btn.textContent='기종 수정';
+  renderParcelModels();
+}
+async function deleteParcelModel(id){
+  if(!confirm('기종을 삭제할까요?'))return;
+  await db.ref('settings/parcelModels/'+id).remove();
+  showToast('🗑 삭제됨');
+}
+function renderParcelCustomers(){
+  const list=document.getElementById('parcelCustomerList');
+  const dl=document.getElementById('parcelCustomerDatalist');
+  const sorted=[...parcelCustomerItems].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  document.getElementById('parcelCustomerCount').textContent=sorted.length?`(${sorted.length}곳)`:''; 
+  if(dl) dl.innerHTML=sorted.map(c=>`<option value="${esc(c.name||'')}">${esc(c.tel||'')} ${esc(c.addr||'')}</option>`).join('');
+  if(!list)return;
+  if(!sorted.length){list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">등록된 보낼곳이 없습니다.</div>';return;}
+  list.innerHTML=sorted.map(c=>`<div class="driver-item ${editingParcelCustomerId===c.id?'editing':''}">
+    <div style="flex:1;">
+      <div class="driver-name">🏪 ${esc(c.name||'')}</div>
+      <div class="driver-bank">${c.tel?'📞 '+esc(c.tel)+' · ':''}${esc(c.addr||'')}</div>
+    </div>
+    <div class="preset-actions">
+      <button class="btn btn-outline btn-sm" onclick="editParcelCustomer('${c.id}')">수정</button>
+      <button class="btn btn-red btn-sm" onclick="deleteParcelCustomer('${c.id}')">🗑</button>
+    </div>
+  </div>`).join('');
+}
+function renderParcelModels(){
+  const list=document.getElementById('parcelModelList');
+  const dl=document.getElementById('parcelModelDatalist');
+  const sorted=[...parcelModelItems].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  document.getElementById('parcelModelCount').textContent=sorted.length?`(${sorted.length}개)`:''; 
+  if(dl) dl.innerHTML=sorted.map(m=>`<option value="${esc(m.name||'')}"></option>`).join('');
+  if(!list)return;
+  if(!sorted.length){list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">등록된 기종이 없습니다.</div>';return;}
+  list.innerHTML=sorted.map(m=>`<div class="driver-item ${editingParcelModelId===m.id?'editing':''}">
+    <div class="driver-name">📦 ${esc(m.name||'')}</div>
+    <div class="preset-actions">
+      <button class="btn btn-outline btn-sm" onclick="editParcelModel('${m.id}')">수정</button>
+      <button class="btn btn-red btn-sm" onclick="deleteParcelModel('${m.id}')">🗑</button>
+    </div>
+  </div>`).join('');
+}
+db.ref('settings/parcelCustomers').on('value',snap=>{const d=snap.val();parcelCustomerItems=d?Object.values(d):[];renderParcelCustomers();});
+db.ref('settings/parcelModels').on('value',snap=>{const d=snap.val();parcelModelItems=d?Object.values(d):[];renderParcelModels();});
 
 // ── 택배 ──
 async function saveParcel(){
