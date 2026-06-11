@@ -875,7 +875,6 @@ function parcelCopyBlock(p,i){
     p.model?`기종: ${p.model}`:'',
     `결제: ${p.payType||''}`,
     p.tracking?`송장: ${p.tracking}`:'',
-    p.memo?`메모: ${p.memo}`:'',
   ].filter(Boolean);
   return parts.join('\n');
 }
